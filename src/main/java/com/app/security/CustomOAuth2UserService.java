@@ -34,14 +34,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     @Override
     @Transactional
     public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
-        System.out.println("🔄 loadUser() called!");
         OAuth2User oauthUser = new DefaultOAuth2UserService().loadUser(request);
 
         String email = oauthUser.getAttribute("email");
         String name = oauthUser.getAttribute("name");
         String avatar = oauthUser.getAttribute("picture");
-
-        System.out.println("Google OAuth2 user info: " + oauthUser.getAttributes());
         Optional<User> existingUser = userRepository.findByEmail(email);
 
         System.out.println("User exists? " + existingUser.isPresent());
@@ -56,7 +53,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             System.out.println("Saving new user: " + email);
             userRepository.save(newUser);
         }
-        System.out.println("🔍 OAuth user attributes: " + oauthUser.getAttributes());
 
         return new DefaultOAuth2User(
                 List.of(new SimpleGrantedAuthority("ROLE_USER")),

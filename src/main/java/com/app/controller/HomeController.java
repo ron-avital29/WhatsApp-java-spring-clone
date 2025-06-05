@@ -9,10 +9,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
 
+    @GetMapping("/")
+    public String index() {
+        return "index"; // Public landing page
+    }
+
     @GetMapping("/home")
     public String home(@AuthenticationPrincipal OAuth2User oauthUser, Model model) {
         model.addAttribute("name", oauthUser.getAttribute("name"));
         model.addAttribute("email", oauthUser.getAttribute("email"));
         return "home";
     }
+
+    @GetMapping("/logout")
+    public String confirmLogout() {
+        return "logout-confirm"; // renders logout-confirm.html
+    }
+
 }
