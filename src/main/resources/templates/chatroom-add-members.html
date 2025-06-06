@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Members - WhatsApp SN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav th:replace="fragments/navbar.html :: navbar"> </nav>
+
+<div class="container my-5">
+    <h2 class="mb-4">Add Members to Group</h2>
+
+    <form class="mb-4" th:action="@{/chatrooms/{id}/add-members(id=${chatroomId})}" method="get">
+        <div class="input-group">
+            <input type="text" name="query" class="form-control" placeholder="Search users..."
+                   th:value="${query}">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+
+    <div th:if="${#lists.isEmpty(users)}">
+        <p>No users found or no search yet.</p>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(users)}">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.username}"></td>
+                <td th:text="${user.email}"></td>
+                <td>
+                    <form th:action="@{/chatrooms/{chatroomId}/add-member/{userId}(chatroomId=${chatroomId}, userId=${user.id})}" method="post">
+                        <button type="submit" class="btn btn-success btn-sm">Add</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a href="/chatrooms" class="btn btn-secondary mt-3">Back to My Chats</a>
+</div>
+
+<footer th:replace="fragments/footer.html :: footer"> </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

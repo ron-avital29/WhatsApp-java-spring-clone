@@ -39,10 +39,13 @@ public class ChatroomController {
 
     @GetMapping("/discover")
     public String discoverCommunities(Model model) {
-        List<Chatroom> communities = chatroomService.findAllCommunities();
+        OAuth2User currentUser = currentUserService.getCurrentUser();
+        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
+
+        List<Chatroom> communities = chatroomService.findDiscoverableCommunities(user.getId());
         model.addAttribute("communities", communities);
 
-        return "discover"; // create discover.html page
+        return "discover";
     }
 
     @PostMapping("/join/{chatroomId}")
@@ -62,4 +65,39 @@ public class ChatroomController {
         chatroomService.leaveChatroom(chatroomId, user.getId());
         return "redirect:/chatrooms";
     }
+
+    @GetMapping("/{chatroomId}/members")
+    public String viewChatroomMembers(@PathVariable Long chatroomId, Model model) {
+        List<User> members = chatroomService.getChatroomMembers(chatroomId);
+        model.addAttribute("members", members);
+        model.addAttribute("chatroomId", chatroomId);
+        return "chatroom-members"; // this is your chatroom-members.html
+    }
+
+    @PostMapping("/{chatroomId}/edit")
+    public String editChatroomName(@PathVariable Long chatroomId, @RequestParam String name) {
+        OAuth2User currentUser = currentUserService.getCurrentUser();
+        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
+
+        chatroomService.editChatroomName(chatroomId, user.getId(), name);
+        return "redirect:/chatrooms";
+    }
+
+    @GetMapping("/{chatroomId}/add-members")
+    public String addMembersForm(@PathVariable Long chatroomId,
+                                 @RequestParam(required = false) String query,
+                                 Model model) {
+
+        List<User> users = (query == null || query.isEmpty())
+                ? List.of()
+                : chatroomService.searchUsersToAddToGroup(chatroomId, query);
+
+        model.addAttribute("users", users);
+        model.addAttribute("chatroomId", chatroomId);
+        model.addAttribute("query", query);
+
+        return "chatroom-add-members";
+    }
+
+
 }

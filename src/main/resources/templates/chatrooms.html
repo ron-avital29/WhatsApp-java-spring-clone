@@ -17,12 +17,44 @@
     </div>
 
     <div class="list-group" th:if="${!#lists.isEmpty(chatrooms)}">
-        <a th:each="chat : ${chatrooms}"
-           href="#"
-           class="list-group-item list-group-item-action">
-            <strong th:text="${chat.name}"></strong>
-            <span class="badge bg-secondary ms-2" th:text="${chat.type}"></span>
-        </a>
+        <div th:each="chat : ${chatrooms}" class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div class="mb-2 mb-md-0">
+                    <strong th:text="${chat.name}"></strong>
+                    <span class="badge bg-secondary ms-2" th:text="${chat.type}"></span>
+                </div>
+
+                <div class="btn-group">
+                    <!-- View Members button (always available) -->
+                    <a th:href="@{/chatrooms/{id}/members(id=${chat.id})}" class="btn btn-outline-primary btn-sm">
+                        View Members
+                    </a>
+
+                    <a th:href="@{/chatrooms/{id}/add-members(id=${chat.id})}"
+                       class="btn btn-outline-success btn-sm"
+                        th:if="${chat.type == 'GROUP'}">
+                        Add Members
+                    </a>
+
+                    <!-- Edit Name form (GROUP only, if editable) -->
+                    <form th:action="@{/chatrooms/{id}/edit(id=${chat.id})}" method="post"
+                          class="d-inline"
+                          th:if="${chat.type == 'GROUP' and chat.editableName}">
+                        <div class="input-group input-group-sm">
+                            <input type="text" name="name" placeholder="New name"
+                                   class="form-control form-control-sm" style="width: 120px;">
+                            <button type="submit" class="btn btn-outline-warning btn-sm">Edit Name</button>
+                        </div>
+                    </form>
+
+                    <!-- Leave Chatroom button (not for PRIVATE) -->
+                    <form th:action="@{/chatrooms/leave/{id}(id=${chat.id})}" method="post"
+                          class="d-inline" th:if="${chat.type != 'PRIVATE'}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Leave</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
