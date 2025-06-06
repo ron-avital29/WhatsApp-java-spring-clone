@@ -31,4 +31,10 @@ public class LoginController {
         session.setAttribute("showLogoutMessage", true);
         return "redirect:/login";
     }
+
+    @GetMapping("/logout-confirm")
+    public String logoutConfirm() {
+        return "logout-confirm";
+    }
+
 }

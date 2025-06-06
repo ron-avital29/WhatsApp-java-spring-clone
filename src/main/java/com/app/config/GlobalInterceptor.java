@@ -27,6 +27,14 @@ public class GlobalInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        if (path.startsWith("/logout-confirm")) {
+            if (!userSessionBean.isLoggedIn()) {
+                response.sendRedirect("/login");
+                return false;
+            }
+            return true;
+        }
+
         // For all other pages → check if logged in
         if (!userSessionBean.isLoggedIn()) {
             response.sendRedirect("/login");
