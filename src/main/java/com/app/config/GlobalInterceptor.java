@@ -17,10 +17,13 @@ public class GlobalInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String path = request.getRequestURI();
 
+        /**
+         * CHECK IF WE NEED THE js AND CSS
+         */
         // Allow access to login, oauth, static resources:
-        if (path.startsWith("/login") || path.startsWith("/oauth2") || path.startsWith("/css") || path.startsWith("/js")) {
+        if (path.startsWith("/login") || path.startsWith("/oauth2") || path.startsWith("/css") || path.startsWith("/js") || path.equals("/")) {
             // If already logged in → redirect /login to /home
-            if (path.startsWith("/login") && userSessionBean.isLoggedIn()) {
+            if ((path.startsWith("/login") || path.equals("/")) && userSessionBean.isLoggedIn()) {
                 response.sendRedirect("/home");
                 return false;
             }

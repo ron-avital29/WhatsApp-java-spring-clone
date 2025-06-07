@@ -14,6 +14,7 @@ public class LoginController {
 
     @Autowired
     private UserSessionBean userSessionBean;
+
     @GetMapping("/login")
     public String loginPage(HttpSession session, Model model) {
         System.out.println("Loading login page");
