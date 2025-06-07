@@ -10,6 +10,16 @@
 <nav th:replace="fragments/navbar.html :: navbar"> </nav>
 
 <div class="container my-5">
+    <!-- Chatroom Toolbar -->
+    <div class="d-flex justify-content-between mb-4">
+        <div>
+            <a href="/chatrooms" class="btn btn-secondary me-2">Back to My Chats</a>
+            <form th:action="@{/chatrooms/leave/{id}(id=${chatroomId})}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-danger">Leave Chatroom</button>
+            </form>
+        </div>
+    </div>
+
     <h2 class="mb-4">Chatroom Members</h2>
 
     <ul class="list-group">
@@ -17,11 +27,11 @@
             <strong th:text="${member.username}"></strong> (<span th:text="${member.email}"></span>)
         </li>
     </ul>
-
-    <a href="/chatrooms" class="btn btn-secondary mt-3">Back to My Chats</a>
 </div>
 
-<div th:replace="fragments/add-members-fragment :: addMembersFragment(${chatroomId}, ${query}, ${users})"></div>
+<div th:if="${chatroomType == 'GROUP'}">
+    <div th:replace="fragments/add-members-fragment :: addMembersFragment(${chatroomId}, ${query}, ${users})"></div>
+</div>
 
 <footer th:replace="fragments/footer.html :: footer"> </footer>
 

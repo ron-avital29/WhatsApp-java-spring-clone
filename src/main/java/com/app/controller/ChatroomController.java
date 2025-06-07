@@ -67,24 +67,24 @@ public class ChatroomController {
         return "redirect:/chatrooms";
     }
 
-    @GetMapping("/{chatroomId}/members")
-    public String viewChatroomMembers(@PathVariable Long chatroomId,
-                                      @RequestParam(required = false) String query,
-                                      Model model) {
-
-        List<User> members = chatroomService.getChatroomMembers(chatroomId);
-
-        List<UserProjection> users = (query == null || query.isEmpty())
-                ? List.of()
-                : chatroomService.searchUsersNotInGroup(chatroomId, query);
-
-        model.addAttribute("members", members);
-        model.addAttribute("users", users);
-        model.addAttribute("chatroomId", chatroomId);
-        model.addAttribute("query", query);
-
-        return "chatroom-members";
-    }
+//    @GetMapping("/{chatroomId}/members")
+//    public String viewChatroomMembers(@PathVariable Long chatroomId,
+//                                      @RequestParam(required = false) String query,
+//                                      Model model) {
+//
+//        List<User> members = chatroomService.getChatroomMembers(chatroomId);
+//
+//        List<UserProjection> users = (query == null || query.isEmpty())
+//                ? List.of()
+//                : chatroomService.searchUsersNotInGroup(chatroomId, query);
+//
+//        model.addAttribute("members", members);
+//        model.addAttribute("users", users);
+//        model.addAttribute("chatroomId", chatroomId);
+//        model.addAttribute("query", query);
+//
+//        return "chatroom-members";
+//    }
 
 
     @PostMapping("/{chatroomId}/edit")
@@ -117,5 +117,18 @@ public class ChatroomController {
         chatroomService.createGroup(name, editableName, user);
 
         return "redirect:/chatrooms";
+    }
+
+    @GetMapping("/{chatroomId}/members")
+    public String viewChatroomMembers(@PathVariable Long chatroomId, Model model) {
+        List<User> members = chatroomService.getChatroomMembers(chatroomId);
+        model.addAttribute("members", members);
+        model.addAttribute("chatroomId", chatroomId);
+
+        // ADD THIS:
+        Chatroom chatroom = chatroomService.findById(chatroomId).orElseThrow();
+        model.addAttribute("chatroomType", chatroom.getType().toString());
+
+        return "chatroom-members";
     }
 }

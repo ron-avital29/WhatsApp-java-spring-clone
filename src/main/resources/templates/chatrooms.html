@@ -10,7 +10,15 @@
 <nav th:replace="fragments/navbar.html :: navbar"> </nav>
 
 <div class="container my-5">
-    <a href="/chatrooms/create" class="btn btn-success mb-4">Create New Group</a>
+    <!-- Toolbar -->
+    <div class="d-flex justify-content-between mb-4">
+        <div>
+            <a href="/chatrooms/create-group" class="btn btn-success me-2">Create New Group</a>
+            <a href="/chatrooms/create-conversation" class="btn btn-primary me-2">Start New Conversation</a>
+            <a href="/chatrooms/create-community" class="btn btn-info">Create New Community</a>
+        </div>
+    </div>
+
     <h2 class="mb-4">My Chats</h2>
 
     <div th:if="${#lists.isEmpty(chatrooms)}">
@@ -40,12 +48,6 @@
                                    class="form-control form-control-sm" style="width: 120px;">
                             <button type="submit" class="btn btn-outline-warning btn-sm">Edit Name</button>
                         </div>
-                    </form>
-
-                    <!-- Leave Chatroom button (not for PRIVATE) -->
-                    <form th:action="@{/chatrooms/leave/{id}(id=${chat.id})}" method="post"
-                          class="d-inline" th:if="${chat.type != 'PRIVATE'}">
-                        <button type="submit" class="btn btn-outline-danger btn-sm">Leave</button>
                     </form>
                 </div>
             </div>
