@@ -14,7 +14,7 @@
     <div class="d-flex justify-content-between mb-4">
         <div>
             <a href="/chatrooms/create-group" class="btn btn-success me-2">Create New Group</a>
-            <a href="/chatrooms/create-conversation" class="btn btn-primary me-2">Start New Conversation</a>
+            <a href="/chatrooms/conversations/start" class="btn btn-primary me-2">Start New Conversation</a>
             <a href="/chatrooms/create-community" class="btn btn-info">Create New Community</a>
         </div>
     </div>
@@ -36,7 +36,7 @@
                 <div class="btn-group">
                     <!-- View Members button (always available) -->
                     <a th:href="@{/chatrooms/{id}/members(id=${chat.id})}" class="btn btn-outline-primary btn-sm">
-                        View Members
+                        View Chatroom
                     </a>
 
                     <!-- Edit Name form (GROUP only, if editable) -->

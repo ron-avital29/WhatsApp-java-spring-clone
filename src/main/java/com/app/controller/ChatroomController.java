@@ -2,11 +2,11 @@ package com.app.controller;
 
 import com.app.model.Chatroom;
 import com.app.model.User;
-import com.app.projection.UserProjection;
 import com.app.repo.UserRepository;
 import com.app.service.ChatroomService;
 import com.app.service.CurrentUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -102,9 +102,14 @@ public class ChatroomController {
         return "redirect:/chatrooms/{chatroomId}/add-members";
     }
 
-    @GetMapping("/create")
+    @GetMapping("/create-group")
     public String createGroupForm() {
-        return "chatroom-create";
+        return "chatroom-create-group";
+    }
+
+    @GetMapping("/create-conversation")
+    public String createConversationForm() {
+        return "start-conversation";
     }
 
     @PostMapping("/create")
@@ -131,4 +136,42 @@ public class ChatroomController {
 
         return "chatroom-members";
     }
+
+    @GetMapping("/conversations/start")
+    public String showStartConversationPage(@RequestParam(value = "query", required = false) String query, Model model) {
+        User currentUser = currentUserService.getCurrentAppUser();
+
+//        if (currentUser == null) {
+//            return "redirect:/login"; // or error page
+//        }
+
+        List<User> users;
+        if (query != null && !query.trim().isEmpty()) {
+            users = userRepository.findByUsernameContainingIgnoreCase(query);
+        }
+        else {
+            users = userRepository.findRandomUsersExcluding(currentUser.getId(), 10);
+        }
+
+        model.addAttribute("query", query);
+        model.addAttribute("users", users);
+
+        System.out.println("now im supposed to show the start conversation page");
+        return "start-conversation";
+    }
+
+    @PostMapping("/conversations/start/{userId}")
+    public String startConversation(@PathVariable Long userId,
+                                    @AuthenticationPrincipal User currentUser) {
+
+        if (currentUser.getId().equals(userId)) {
+            return "redirect:/home"; // Cannot start a convo with self
+        }
+
+//        Chatroom chat = chatroomService.findOrCreatePrivateChat(currentUser.getId(), userId);
+//        return "redirect:/chatrooms/" + chat.getId();
+        return "redirect:/home";    // Placeholder for actual conversation start logic
+    }
+
+
 }
