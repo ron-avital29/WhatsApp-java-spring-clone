@@ -16,6 +16,20 @@
         <button type="submit" class="btn btn-danger">Leave Chatroom</button>
     </form>
 
+    <div class="chatroom-toolbar mb-4">
+        <h2>
+            Chatroom:
+            <span th:if="${chatroomType == 'GROUP' and isEditableName}">
+            <form th:action="@{/chatrooms/{id}/edit(id=${chatroomId})}" method="post" class="d-inline">
+                <input type="text" name="name" th:value="${chatroomName}" required
+                       class="form-control d-inline-block w-auto" style="display: inline; width: auto;" />
+                <button type="submit" class="btn btn-primary btn-sm">Save</button>
+            </form>
+        </span>
+            <span th:if="${!(chatroomType == 'GROUP' and isEditableName)}" th:text="${chatroomName}">Chatroom Name</span>
+        </h2>
+    </div>
+
     <div th:replace="~{fragments/chatroom/chatroom-managment :: chatroomManagment(${chatroomType})}"></div>
 </div>
 

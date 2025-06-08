@@ -1,6 +1,7 @@
 package com.app.controller;
 
 import com.app.model.Chatroom;
+import com.app.model.ChatroomType;
 import com.app.model.User;
 import com.app.projection.UserProjection;
 import com.app.repo.UserRepository;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -137,7 +139,7 @@ public class ChatroomController {
         User user = chatroomService.requireMembershipOrThrow(chatroomId);
 
         chatroomService.editChatroomName(chatroomId, user.getId(), name);
-        return "redirect:/chatrooms";
+        return "redirect:/chatrooms/" + chatroomId + "/manage";
     }
 
     @PostMapping("/{chatroomId}/add-member/{userId}")
@@ -204,4 +206,5 @@ public class ChatroomController {
 
         return "chatroom-manage";
     }
+
 }
