@@ -185,7 +185,7 @@ public class ChatroomController {
         return "start-conversation";
     }
 
-    @GetMapping("/chatrooms/{chatroomId}/manage")
+    @GetMapping("/{chatroomId}/manage")
     public String manageChatroom(@PathVariable Long chatroomId,
                                  @RequestParam(required = false) String query,
                                  Model model) {
