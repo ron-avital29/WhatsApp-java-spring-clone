@@ -68,10 +68,17 @@ public class ChatroomController {
         return "redirect:/chatrooms";
     }
 
-    @GetMapping("/{chatroomId}/add-members")
+    @GetMapping("/{chatroomId}/search-members")
     public String viewChatroomMembers(@PathVariable Long chatroomId,
                                       @RequestParam(required = false) String query,
                                       Model model) {
+
+        // maybe out this in a function to avoid code duplication
+        OAuth2User currentUser = currentUserService.getCurrentUser();
+        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
+        if (!chatroomService.isUserMemberOfChatroom(chatroomId, user.getId())) {
+            return "redirect:/chatrooms"; // or show an error page
+        }
 
         List<User> members = chatroomService.getChatroomMembers(chatroomId);
 
@@ -80,7 +87,7 @@ public class ChatroomController {
                 : chatroomService.searchUsersNotInGroup(chatroomId, query);
 
         // prints the users found
-        users.forEach(user -> System.out.println("User found: " + user.getUsername()));
+        users.forEach(u -> System.out.println("User found: " + u.getUsername()));
 
         model.addAttribute("members", members);
         model.addAttribute("users", users);
@@ -107,7 +114,7 @@ public class ChatroomController {
     @PostMapping("/{chatroomId}/add-member/{userId}")
     public String addUserToGroup(@PathVariable Long chatroomId, @PathVariable Long userId) {
         chatroomService.addUserToGroup(chatroomId, userId);
-        return "redirect:/chatrooms/{chatroomId}/add-members";
+        return "redirect:/chatrooms";   // placeholder, probably needs to change
     }
 
     @GetMapping("/create-group")
@@ -135,9 +142,18 @@ public class ChatroomController {
     // might me depricated
     @GetMapping("/{chatroomId}/members")
     public String viewChatroomMembers(@PathVariable Long chatroomId, Model model) {
+        // check if the logged-in user is a member of the chatroom and has permission to view members, if not, redirect or show error
+        OAuth2User currentUser = currentUserService.getCurrentUser();
+        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
+        if (!chatroomService.isUserMemberOfChatroom(chatroomId, user.getId())) {
+            return "redirect:/chatrooms"; // or show an error page
+        }
+
+
         List<User> members = chatroomService.getChatroomMembers(chatroomId);
         model.addAttribute("members", members);
         model.addAttribute("chatroomId", chatroomId);
+
 
         // ADD THIS:
         Chatroom chatroom = chatroomService.findById(chatroomId).orElseThrow();
@@ -169,10 +185,35 @@ public class ChatroomController {
         return "start-conversation";
     }
 
+    @GetMapping("/{chatroomId}/manage")
+    public String manageChatroom(@PathVariable Long chatroomId,
+                                 @RequestParam(required = false) String query,
+                                 Model model) {
+
+        // Chatroom data
+        Chatroom chatroom = chatroomService.findById(chatroomId).orElseThrow();
+        model.addAttribute("chatroomId", chatroomId);
+        model.addAttribute("chatroomType", chatroom.getType().toString());
+
+        // Chatroom members
+        List<User> members = chatroomService.getChatroomMembers(chatroomId);
+        model.addAttribute("members", members);
+
+        // Search users not in group
+        List<UserProjection> users = (query == null || query.isEmpty())
+                ? List.of()
+                : chatroomService.searchUsersNotInGroup(chatroomId, query);
+        model.addAttribute("query", query);
+        model.addAttribute("users", users);
+
+        return "chatroom-manage"; // This is the name of the new page (see next step)
+    }
+
     @PostMapping("/conversations/start/{userId}")
     public String startConversation(@PathVariable Long userId,
                                     @AuthenticationPrincipal User currentUser) {
 
+        System.out.println("now im supposed to show the start conversation page");
         if (currentUser.getId().equals(userId)) {
             return "redirect:/home"; // Cannot start a convo with self
         }
@@ -181,6 +222,4 @@ public class ChatroomController {
 //        return "redirect:/chatrooms/" + chat.getId();
         return "redirect:/home";    // Placeholder for actual conversation start logic
     }
-
-
 }
