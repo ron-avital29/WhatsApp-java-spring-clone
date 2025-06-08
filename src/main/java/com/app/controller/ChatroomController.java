@@ -2,6 +2,7 @@ package com.app.controller;
 
 import com.app.model.Chatroom;
 import com.app.model.User;
+import com.app.projection.UserProjection;
 import com.app.repo.UserRepository;
 import com.app.service.ChatroomService;
 import com.app.service.CurrentUserService;
@@ -67,24 +68,31 @@ public class ChatroomController {
         return "redirect:/chatrooms";
     }
 
-//    @GetMapping("/{chatroomId}/members")
-//    public String viewChatroomMembers(@PathVariable Long chatroomId,
-//                                      @RequestParam(required = false) String query,
-//                                      Model model) {
-//
-//        List<User> members = chatroomService.getChatroomMembers(chatroomId);
-//
-//        List<UserProjection> users = (query == null || query.isEmpty())
-//                ? List.of()
-//                : chatroomService.searchUsersNotInGroup(chatroomId, query);
-//
-//        model.addAttribute("members", members);
-//        model.addAttribute("users", users);
-//        model.addAttribute("chatroomId", chatroomId);
-//        model.addAttribute("query", query);
-//
-//        return "chatroom-members";
-//    }
+    @GetMapping("/{chatroomId}/add-members")
+    public String viewChatroomMembers(@PathVariable Long chatroomId,
+                                      @RequestParam(required = false) String query,
+                                      Model model) {
+
+        List<User> members = chatroomService.getChatroomMembers(chatroomId);
+
+        List<UserProjection> users = (query == null || query.isEmpty())
+                ? List.of()
+                : chatroomService.searchUsersNotInGroup(chatroomId, query);
+
+        // prints the users found
+        users.forEach(user -> System.out.println("User found: " + user.getUsername()));
+
+        model.addAttribute("members", members);
+        model.addAttribute("users", users);
+        model.addAttribute("chatroomId", chatroomId);
+        model.addAttribute("query", query);
+        model.addAttribute("chatroomType", chatroomService.findById(chatroomId)
+                .map(Chatroom::getType)
+                .map(Enum::toString)
+                .orElse("UNKNOWN"));
+
+        return "chatroom-members";
+    }
 
 
     @PostMapping("/{chatroomId}/edit")
@@ -124,6 +132,7 @@ public class ChatroomController {
         return "redirect:/chatrooms";
     }
 
+    // might me depricated
     @GetMapping("/{chatroomId}/members")
     public String viewChatroomMembers(@PathVariable Long chatroomId, Model model) {
         List<User> members = chatroomService.getChatroomMembers(chatroomId);
