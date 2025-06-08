@@ -3,7 +3,7 @@
         <div th:replace="fragments/chatroom/show-members :: chatroomMembers"></div>
     </div>
     <div th:if="${chatroomType == 'GROUP'}">
-        <div th:replace="~{fragments/chatroom/add-members-fragment :: addMembersFragment(${chatroomId}, ${query}, ${users})}"
+        <div th:replace="~{fragments/chatroom/add-members :: addMembers(${chatroomId}, ${query}, ${users})}"
         ></div>
     </div>
 </div>
