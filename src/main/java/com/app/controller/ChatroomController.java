@@ -73,12 +73,7 @@ public class ChatroomController {
                                       @RequestParam(required = false) String query,
                                       Model model) {
 
-        // maybe out this in a function to avoid code duplication
-        OAuth2User currentUser = currentUserService.getCurrentUser();
-        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
-        if (!chatroomService.isUserMemberOfChatroom(chatroomId, user.getId())) {
-            return "redirect:/chatrooms"; // or show an error page
-        }
+        User user = chatroomService.requireMembershipOrThrow(chatroomId);
 
         List<User> members = chatroomService.getChatroomMembers(chatroomId);
 
@@ -142,13 +137,8 @@ public class ChatroomController {
     // might me depricated
     @GetMapping("/{chatroomId}/members")
     public String viewChatroomMembers(@PathVariable Long chatroomId, Model model) {
-        // check if the logged-in user is a member of the chatroom and has permission to view members, if not, redirect or show error
-        OAuth2User currentUser = currentUserService.getCurrentUser();
-        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
-        if (!chatroomService.isUserMemberOfChatroom(chatroomId, user.getId())) {
-            return "redirect:/chatrooms"; // or show an error page
-        }
 
+        User user = chatroomService.requireMembershipOrThrow(chatroomId);
 
         List<User> members = chatroomService.getChatroomMembers(chatroomId);
         model.addAttribute("members", members);
