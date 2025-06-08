@@ -7,6 +7,7 @@ import com.app.repo.ChatroomRepository;
 import com.app.repo.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import com.app.projection.UserProjection;
 
@@ -22,6 +23,10 @@ public class ChatroomService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CurrentUserService currentUserService;
+
 
     public List<Chatroom> findMyChatrooms(Long userId) {
         return chatroomRepository.findByMembers_Id(userId);
@@ -128,4 +133,13 @@ public class ChatroomService {
         return chatroom.getMembers().stream()
                 .anyMatch(member -> member.getId().equals(useId));
     }
+
+    public User requireMembershipOrThrow(Long chatroomId) {
+        User user = currentUserService.getCurrentAppUser();
+        if (user == null || !isUserMemberOfChatroom(chatroomId, user.getId())) {
+            throw new AccessDeniedException("You are not a member of this chatroom.");
+        }
+        return user;
+    }
+
 }
