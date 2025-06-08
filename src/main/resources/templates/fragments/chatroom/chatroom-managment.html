@@ -7,8 +7,8 @@
         <div th:replace="~{fragments/chatroom/add-members :: addMembers(${chatroomId},
                                                                         ${query},
                                                                         ${users},
-                                                                        '/chatrooms/' + ${chatroomId} + '/search-members',
-                                                                        '/chatrooms/' + ${chatroomId} + '/add-member',
+                                                                        |/chatrooms/${chatroomId}/search-members|,
+                                                                        |/chatrooms/${chatroomId}/add-member|,
                                                                         'Add')}">
 
         </div>
