@@ -20,6 +20,7 @@ public class HomeController {
 
     @GetMapping("/home")
     public String home(Model model) {
+        System.out.println("going to home");
         OAuth2User user = currentUserService.getCurrentUser();
         if (user != null) {
             model.addAttribute("name", user.getAttribute("name"));

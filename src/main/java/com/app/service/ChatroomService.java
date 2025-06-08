@@ -119,4 +119,13 @@ public class ChatroomService {
         chatroomRepository.save(chatroom);
     }
 
+    public boolean isUserMemberOfChatroom(Long chatroomId, Long useId) {
+        Optional<Chatroom> chatroomOpt = chatroomRepository.findById(chatroomId);
+        if (chatroomOpt.isEmpty()) {
+            return false; // Chatroom does not exist
+        }
+        Chatroom chatroom = chatroomOpt.get();
+        return chatroom.getMembers().stream()
+                .anyMatch(member -> member.getId().equals(useId));
+    }
 }
