@@ -1,0 +1,9 @@
+<div th:fragment="chatroomMembers">
+    <h2 class="mb-4">Chatroom Members</h2>
+
+    <ul class="list-group">
+        <li th:each="member : ${members}" class="list-group-item">
+            <strong th:text="${member.username}"></strong> (<span th:text="${member.email}"></span>)
+        </li>
+    </ul>
+</div>

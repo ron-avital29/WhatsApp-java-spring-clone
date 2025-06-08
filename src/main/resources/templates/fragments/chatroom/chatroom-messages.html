@@ -1,0 +1,22 @@
+<div th:fragment="chatroomMessages(messages)" class="container my-5">
+
+    <h2 class="mb-4">Messages</h2>
+
+    <div th:if="${#lists.isEmpty(messages)}">
+        <p>No messages yet. Start the conversation!</p>
+    </div>
+
+    <ul class="list-group" th:if="${!#lists.isEmpty(messages)}">
+        <li th:each="msg : ${messages}" class="list-group-item">
+            <div>
+                <strong th:text="${msg.senderUsername}">Sender</strong>
+                <small class="text-muted ms-2" th:text="${#dates.format(msg.timestamp, 'yyyy-MM-dd HH:mm')}">Timestamp</small>
+            </div>
+            <div th:text="${msg.content}">Message content</div>
+        </li>
+    </ul>
+
+</div>
+
+<!-- usage example -->
+<!-- <div th:replace="~{fragments/chatroom-messages :: chatroomMessages(${messages})}"></div> -->

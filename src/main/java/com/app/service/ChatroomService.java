@@ -27,13 +27,8 @@ public class ChatroomService {
     @Autowired
     private CurrentUserService currentUserService;
 
-
     public List<Chatroom> findMyChatrooms(Long userId) {
         return chatroomRepository.findByMembers_Id(userId);
-    }
-
-    public List<Chatroom> findAllCommunities() {
-        return chatroomRepository.findByType(ChatroomType.COMMUNITY);
     }
 
     public List<Chatroom> findDiscoverableCommunities(Long userId) {
@@ -47,8 +42,15 @@ public class ChatroomService {
     public void joinCommunity(Long chatroomId, Long userId) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow();
         User user = userRepository.findById(userId).orElseThrow();
-        chatroom.getMembers().add(user);
-        chatroomRepository.save(chatroom);
+
+        if (chatroom.getType() != ChatroomType.COMMUNITY) {
+            throw new IllegalStateException("You can only join COMMUNITY chatrooms.");
+        }
+
+        if (!chatroom.getMembers().contains(user)) {
+            chatroom.getMembers().add(user);
+            chatroomRepository.save(chatroom);
+        }
     }
 
     public List<User> getChatroomMembers(Long chatroomId) {
@@ -76,7 +78,6 @@ public class ChatroomService {
         chatroomRepository.save(chatroom);
     }
 
-
     public void leaveChatroom(Long chatroomId, Long userId) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow();
         User user = userRepository.findById(userId).orElseThrow();
@@ -98,18 +99,14 @@ public class ChatroomService {
         Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow();
         User user = userRepository.findById(userId).orElseThrow();
 
-        // Optional safety: only GROUP can add
         if (chatroom.getType() != ChatroomType.GROUP) {
             throw new IllegalStateException("Only GROUP chatrooms can add members.");
         }
 
-        chatroom.getMembers().add(user);
-        chatroomRepository.save(chatroom);
-    }
-
-
-    public List<UserProjection> searchUsersByUsername(String query) {
-        return chatroomRepository.searchUsersByUsername(query);
+        if (!chatroom.getMembers().contains(user)) {
+            chatroom.getMembers().add(user);
+            chatroomRepository.save(chatroom);
+        }
     }
 
     @Transactional
@@ -119,7 +116,7 @@ public class ChatroomService {
         chatroom.setType(ChatroomType.GROUP);
         chatroom.setEditableName(editableName);
         chatroom.setCreatedBy(creator);
-        chatroom.getMembers().add(creator); // Creator is first member
+        chatroom.getMembers().add(creator);
 
         chatroomRepository.save(chatroom);
     }
@@ -127,7 +124,7 @@ public class ChatroomService {
     public boolean isUserMemberOfChatroom(Long chatroomId, Long useId) {
         Optional<Chatroom> chatroomOpt = chatroomRepository.findById(chatroomId);
         if (chatroomOpt.isEmpty()) {
-            return false; // Chatroom does not exist
+            return false;
         }
         Chatroom chatroom = chatroomOpt.get();
         return chatroom.getMembers().stream()

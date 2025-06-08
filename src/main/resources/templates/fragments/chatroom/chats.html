@@ -1,0 +1,25 @@
+<div th:fragment="chats(titleText)" class="container my-5">
+    <h2 class="mb-4" th:text="${titleText}">My Chats</h2>
+
+    <div th:if="${#lists.isEmpty(chatrooms)}">
+        <p>You have no active chats yet.</p>
+    </div>
+
+    <div class="list-group" th:if="${!#lists.isEmpty(chatrooms)}">
+        <div th:each="chat : ${chatrooms}" class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div class="mb-2 mb-md-0">
+                    <strong th:text="${chat.name}"></strong>
+                    <span class="badge bg-secondary ms-2" th:text="${chat.type}"></span>
+                </div>
+
+                <div class="btn-group">
+                    <!-- Not now but later: change to go to conversation page -->
+                    <a th:href="@{/chatrooms/{id}/view-chatroom(id=${chat.id})}" class="btn btn-outline-primary btn-sm">
+                        Chat
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
