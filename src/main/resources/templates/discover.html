@@ -12,11 +12,53 @@
 <div class="container my-5">
     <h2 class="mb-4">Discover Communities</h2>
 
+    <!-- Search Title -->
+    <h4 class="mt-4">Find a community</h4>
+
+    <!-- Search Form -->
+    <form class="mb-4" th:action="@{/}" method="get">
+        <div class="input-group">
+            <label>
+                <input type="text" name="query" class="form-control" placeholder="Search communities..."
+                       th:value="${query}">
+            </label>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+
+    <!-- Results Table -->
+    <div th:if="${!#lists.isEmpty(communities)}">
+        <h4>Found Communities:</h4>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Number of Members</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="community : ${communities}">
+                <td th:text="${community.name}"></td>
+<!--                <td th:text="${community.numOfMembers}"></td>-->
+                <td>-1</td>
+                <td>
+                    <form th:action="@{'/' + ${community.id}}" method="post">
+                        <button type="submit" class="btn btn-success btn-sm">Join</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+
     <div th:if="${#lists.isEmpty(communities)}">
         <p>No public communities available.</p>
     </div>
 
     <div class="list-group" th:if="${!#lists.isEmpty(communities)}">
+        <h4 class="mt-4">Communities that might interest you</h4>
         <div th:each="community : ${communities}" class="list-group-item d-flex justify-content-between align-items-center">
             <div>
                 <strong th:text="${community.name}"></strong>
