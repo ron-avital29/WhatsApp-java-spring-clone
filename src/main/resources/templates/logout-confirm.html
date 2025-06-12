@@ -15,7 +15,7 @@
         <div class="card-body text-center">
             <h2 class="card-title mb-4">Are you sure you want to logout?</h2>
 
-            <form th:action="@{/logout-success}" method="post" class="d-inline">
+            <form th:action="@{/logout}" method="post" class="d-inline">
                 <button type="submit" class="btn btn-danger">Yes, log me out</button>
             </form>
 
@@ -25,6 +25,6 @@
 </div>
 
 <footer th:replace="fragments/footer.html :: footer"> </footer>
-
+<div th:insert="fragments/scripts.html :: bootstrapScript"></div>
 </body>
 </html>

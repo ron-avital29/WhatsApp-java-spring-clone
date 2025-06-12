@@ -11,10 +11,13 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByUsername(String username);
+    List<User> findByUsername(String username); // Not unique anymore
+
     Optional<User> findByEmail(String email);
-    boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+
+    Optional<User> findByGoogleId(String googleId);
+    boolean existsByGoogleId(String googleId);
 
     List<User> findByUsernameContainingIgnoreCase(String query);
 
