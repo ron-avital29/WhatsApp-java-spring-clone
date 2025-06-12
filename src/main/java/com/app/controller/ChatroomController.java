@@ -1,22 +1,25 @@
 package com.app.controller;
 
-import com.app.model.Chatroom;
-import com.app.model.ChatroomType;
-import com.app.model.Message;
-import com.app.model.User;
+import com.app.model.*;
 import com.app.projection.UserProjection;
 import com.app.repo.MessageRepository;
 import com.app.repo.UserRepository;
 import com.app.service.ChatroomService;
+import com.app.service.FileService;
 import com.app.service.CurrentUserService;
 import com.app.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,25 +43,73 @@ public class ChatroomController {
     @Autowired
     private MessageService messageService;
 
+    @Autowired
+    private FileService fileService;
+
     @PostMapping("/{chatroomId}/send-message")
     public String sendMessage(@PathVariable Long chatroomId,
                               @RequestParam("message") String content,
+                              @RequestParam(value = "file", required = false) MultipartFile file,
                               RedirectAttributes redirectAttributes) {
-
         if (content.length() > 255) {
             redirectAttributes.addFlashAttribute("error", "Message must be 255 characters or less.");
             return "redirect:/chatrooms/" + chatroomId + "/view-chatroom";
         }
 
+        // Ensure user is a member and chatroom exists
         User user = chatroomService.requireMembershipOrThrow(chatroomId);
         Chatroom chatroom = chatroomService.findById(chatroomId)
                 .orElseThrow(() -> new IllegalArgumentException("Chatroom not found"));
 
-        messageService.sendMessageToChatroom(content, chatroom, user);
+        // Handle file upload
+        File attachedFile = null;
+        try {
+            attachedFile = fileService.saveFile(file); // returns null if file is empty
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("error", "File upload failed: " + e.getMessage());
+            return "redirect:/chatrooms/" + chatroomId + "/view-chatroom";
+        }
+
+        // Pass file to messageService
+        messageService.sendMessageToChatroom(content, chatroom, user, attachedFile);
 
         return "redirect:/chatrooms/" + chatroomId + "/view-chatroom";
     }
 
+    @GetMapping("/files/{id}/download")
+    public ResponseEntity<byte[]> downloadFile(@PathVariable Long id) {
+        System.out.println("DEBUG: Download requested for file id = " + id);
+
+        File file = fileService.getFileById(id);
+
+        if (file == null) {
+            System.out.println("DEBUG: No file found for id = " + id);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .header(HttpHeaders.CONTENT_TYPE, "text/plain; charset=UTF-8")
+                    .body("File wasn't available on site (not found)".getBytes(StandardCharsets.UTF_8));
+        }
+
+        System.out.println("DEBUG: File found: " + file.getFilename());
+
+        if (file.getFileData() == null) {
+            System.out.println("DEBUG: fileData is NULL for id = " + id);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .header(HttpHeaders.CONTENT_TYPE, "text/plain; charset=UTF-8")
+                    .body("File wasn't available on site (no data)".getBytes(StandardCharsets.UTF_8));
+        }
+
+        System.out.println("DEBUG: File size = " + file.getFileData().length + " bytes");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDisposition(ContentDisposition.attachment()
+                .filename(file.getFilename(), StandardCharsets.UTF_8)
+                .build());
+
+        return new ResponseEntity<>(file.getFileData(), headers, HttpStatus.OK);
+    }
 
 
     @GetMapping("/conversations/start")
@@ -93,8 +144,8 @@ public class ChatroomController {
 
     @GetMapping("/{chatroomId}/search-members")
     public String searchMembers(@PathVariable Long chatroomId,
-                                      @RequestParam(required = false) String query,
-                                      Model model) {
+                                @RequestParam(required = false) String query,
+                                Model model) {
 
         User user = chatroomService.requireMembershipOrThrow(chatroomId);
         Chatroom chatroom = chatroomService.findById(chatroomId).orElseThrow();
