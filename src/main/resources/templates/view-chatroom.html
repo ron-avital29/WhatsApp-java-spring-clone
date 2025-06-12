@@ -143,9 +143,9 @@
                     <span class="sender-name" th:if="${msg.senderName != currentUser}"
                           th:text="${msg.senderName}">Sender</span>
                     <div th:text="${msg.content}">Message content</div>
-<!--                    <div th:if="${msg.fileName != null}">-->
-<!--                        <a th:href="@{/files/{id}(id=${msg.fileId})}" th:text="${msg.fileName}" download></a>-->
-<!--                    </div>-->
+                    <!--                    <div th:if="${msg.fileName != null}">-->
+                    <!--                        <a th:href="@{/files/{id}(id=${msg.fileId})}" th:text="${msg.fileName}" download></a>-->
+                    <!--                    </div>-->
                     <div class="chat-meta" th:text="${#temporals.format(msg.timestamp, 'HH:mm')}">1/1/1970</div>
                 </div>
             </div>
@@ -210,6 +210,6 @@
         }
     });
 </script>
-<div th:insert="fragments/scripts.html :: bootstrapScript"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
