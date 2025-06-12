@@ -40,8 +40,7 @@
             <tbody>
             <tr th:each="community : ${foundCommunities}">
                 <td th:text="${community.name}"></td>
-<!--                <td th:text="${community.numOfMembers}"></td>-->
-                <td>-1</td>
+                <td th:text="${community.numOfMembers}"></td>
                 <td>
                     <form th:action="@{/chatrooms/join/{id}(id=${community.id})}" method="post">
                         <button type="submit" class="btn btn-success btn-sm">Join</button>
