@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Chatroom - WhatsApp SN</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <style>
         body {
             background: #f8f9fa;
@@ -20,7 +23,6 @@
             font-size: 1.25rem;
             font-weight: 600;
             color: #212121;
-            letter-spacing: .02em;
         }
         .chatbox-main {
             max-width: 720px;
@@ -52,16 +54,14 @@
             border-radius: 50%;
             background: #d7f0e4;
             margin: 0 0.75rem;
-            flex-shrink: 0;
             object-fit: cover;
         }
         .chat-bubble {
-            max-width: 80%;
+            max-width: 100%;
             background: #fff;
             border-radius: 18px;
-            padding: 0.85rem 1.15rem 0.75rem 1.15rem;
+            padding: 0.85rem 1.15rem;
             box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-            position: relative;
             font-size: 1rem;
             color: #212121;
         }
@@ -74,10 +74,6 @@
             color: #999;
             text-align: right;
         }
-        .chat-toolbar-actions .btn {
-            margin-left: 0.6rem;
-        }
-        /* Input area at bottom */
         .chat-input-area {
             border-top: 1px solid #ececec;
             background: #fff;
@@ -94,9 +90,6 @@
             font-size: 1rem;
             background: #f8f8fa;
         }
-        .chat-input-area input[type="file"] {
-            display: none;
-        }
         .file-label {
             margin: 0 0.5rem 0 0;
             cursor: pointer;
@@ -107,18 +100,16 @@
             display: block;
             margin-bottom: 0.3rem;
         }
-        .file-label input[type="file"] {
-            display: none;
-        }
     </style>
 </head>
 <body>
 
-<!-- NAVIGATION BAR -->
 <nav th:replace="~{fragments/navbar.html :: navbar}"></nav>
 
+<div id="app-data"
+     th:attr="data-current-user-id=${currentUserId}, data-current-user-name='${currentUserName}'"></div>
+
 <div class="chatbox-main">
-    <!-- Toolbar/Header -->
     <div class="chat-toolbar">
         <span class="chat-toolbar-title" th:text="${chatroomName}">Chatroom Name</span>
         <div class="chat-toolbar-actions">
@@ -127,89 +118,177 @@
         </div>
     </div>
 
-    <!-- Chat messages -->
     <div class="chat-messages" id="chatBox">
         <div th:each="msg : ${messages}"
              th:class="'chat-message-row' + (${msg.senderName == currentUser} ? ' me' : '')">
-            <img class="chat-avatar"
-                 th:src="@{../static/img/bear.png}" th:if="${msg.senderName != currentUser}"
-                 alt="Avatar" />
+            <img class="chat-avatar" th:src="@{/img/bear.png}" th:if="${msg.senderName != currentUser}" alt="Avatar" />
             <div>
-                <div class="chat-bubble" th:classappend="${msg.senderName == currentUser} ? ' me' : ''">
+                <div class="chat-bubble">
                     <div th:if="${msg.file != null}">
-                        <img id="imagePreview" style="max-width: 100px; max-height: 100px; display: none; margin-left: 10px;" />
-                        <a th:href="@{/chatrooms/files/{id}/download(id=${msg.file.id})}" th:text="${msg.file.filename}" download></a>
+                        <img class="image-preview" th:if="${msg.file != null} and ${msg.file.mimeType != null} and ${msg.file.mimeType.startsWith('image/')}"
+                             th:src="@{/chatrooms/files/{id}/download(id=${msg.file.id})}"
+                             style="max-width: 100px; max-height: 100px; margin-left: 10px;" />
+                        <a th:href="@{/chatrooms/files/{id}/download(id=${msg.file.id})}"
+                           th:text="${msg.file.filename}" download></a>
                     </div>
-                    <span class="sender-name" th:if="${msg.senderName != currentUser}"
-                          th:text="${msg.senderName}">Sender</span>
+                    <span class="sender-name" th:if="${msg.senderName != currentUser}" th:text="${msg.senderName}">Sender</span>
                     <div th:text="${msg.content}">Message content</div>
-                    <!--                    <div th:if="${msg.fileName != null}">-->
-                    <!--                        <a th:href="@{/files/{id}(id=${msg.fileId})}" th:text="${msg.fileName}" download></a>-->
-                    <!--                    </div>-->
                     <div class="chat-meta" th:text="${#temporals.format(msg.timestamp, 'HH:mm')}">1/1/1970</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Message input area (combined text + file upload) -->
-    <form class="chat-input-area" th:action="@{/chatrooms/{id}/send-message(id=${chatroomId})}"
-          method="post" enctype="multipart/form-data" autocomplete="off">
-        <!-- File attachment button -->
+    <form class="chat-input-area" enctype="multipart/form-data" method="post">
         <label class="file-label" title="Attach file">
-            <svg width="23" height="23" fill="#3d8b60" viewBox="0 0 24 24"><path d="M17.657 6.343a8 8 0 10-11.314 11.314 8 8 0 0011.314-11.314zm-1.414 1.414a6 6 0 11-8.486 8.486 6 6 0 018.486-8.486zm-4.95 4.95a1 1 0 111.415 1.414l-2.122 2.121a1 1 0 01-1.414-1.415l2.121-2.12z"></path></svg>
-            <input type="file" name="file">
+            <svg width="23" height="23" fill="#3d8b60" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+            </svg>
+            <input type="file" name="file" />
         </label>
-        <input type="text" name="message" placeholder="Type a message..." required maxlength="255">
-        <small class="text-muted ms-2" style="font-size: 0.92em;">Max 255 characters</small>
+        <input type="text" name="message" placeholder="Type a message..." required maxlength="255" />
         <button type="submit" class="btn btn-success px-3">Send</button>
     </form>
-    <span id="selectedFileName" style="margin-left: 8px; color: #388e3c; font-size: 0.95em;"></span>
+    <span id="selectedFileName" class="ms-2 text-success small"></span>
 </div>
-
 
 <footer th:replace="~{fragments/footer.html :: footer}"></footer>
 
-<!-- Auto-scroll to bottom -->
 <script>
     const chatBox = document.getElementById("chatBox");
     if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
 </script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const fileInput = document.querySelector('.chat-input-area input[type="file"]');
         const fileNameDisplay = document.getElementById('selectedFileName');
-        const imagePreview = document.getElementById('imagePreview');
-        if (fileInput && fileNameDisplay) {
-            fileInput.addEventListener('change', function() {
-                if (fileInput.files.length) {
-                    fileNameDisplay.textContent = fileInput.files[0].name;
-                    // Preview image if it's an image
-                    if (imagePreview) {
-                        const file = fileInput.files[0];
-                        if (file && file.type.startsWith('image/')) {
-                            const reader = new FileReader();
-                            reader.onload = function(e) {
-                                imagePreview.src = e.target.result;
-                                imagePreview.style.display = "inline-block";
-                            }
-                            reader.readAsDataURL(file);
-                        } else {
-                            imagePreview.src = "";
-                            imagePreview.style.display = "none";
-                        }
-                    }
-                } else {
-                    fileNameDisplay.textContent = "";
-                    if (imagePreview) {
-                        imagePreview.src = "";
-                        imagePreview.style.display = "none";
-                    }
-                }
-            });
-        }
+
+        fileInput.addEventListener('change', function () {
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = fileInput.files[0].name;
+            } else {
+                fileNameDisplay.textContent = "";
+            }
+        });
     });
 </script>
+
+<script th:inline="javascript">
+    let chatroomId = [[${chatroomId}]];
+    let stompClient = null;
+
+    function connect() {
+        const socket = new SockJS('/chat');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function () {
+            stompClient.subscribe('/topic/messages', function (messageOutput) {
+                const msg = JSON.parse(messageOutput.body);
+                showMessage(msg);
+            });
+        });
+    }
+
+    function showMessage(msg) {
+        const currentUserName = document.getElementById('app-data').dataset.currentUserName;
+        const isMe = msg.from === currentUserName;
+        const chatBox = document.getElementById("chatBox");
+
+        const messageRow = document.createElement("div");
+        messageRow.className = "chat-message-row" + (isMe ? " me" : "");
+
+        const avatar = isMe ? "" : `<img class="chat-avatar" src="/img/bear.png" alt="Avatar" />`;
+
+        const fileLink = msg.fileId && msg.filename
+            ? msg.filename.endsWith('.jpg') || msg.filename.endsWith('.png') || msg.filename.endsWith('.jpeg') || msg.filename.endsWith('.gif')
+                ? `<img class="image-preview" src="/chatrooms/files/${msg.fileId}/download"
+                        style="max-width: 100px; max-height: 100px; margin-left: 10px;" />`
+                : `<a href="/chatrooms/files/${msg.fileId}/download" download>${msg.filename}</a>`
+            : "";
+
+        messageRow.innerHTML = `
+            ${avatar}
+            <div>
+                <div class="chat-bubble">
+                    ${!isMe ? `<span class="sender-name">${msg.from}</span>` : ""}
+                    ${fileLink}
+                    <div>${msg.text}</div>
+                    <div class="chat-meta">${msg.time}</div>
+                </div>
+            </div>
+        `;
+
+        chatBox.appendChild(messageRow);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function uploadFile(file) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch(`/chatrooms/${chatroomId}/upload`, {
+            method: "POST",
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error("File upload failed");
+        }
+
+        return await response.json(); // returns { fileId, filename }
+    }
+
+    async function sendMessageWithFile(messageText, file) {
+        const currentUserId = document.getElementById('app-data').dataset.currentUserId;
+        const currentUserName = document.getElementById('app-data').dataset.currentUserName;
+
+        let fileData = null;
+        if (file) {
+            try {
+                fileData = await uploadFile(file);
+            } catch (err) {
+                alert(err.message);
+                return;
+            }
+        }
+
+        const message = {
+            fromId: currentUserId,
+            from: currentUserName,
+            text: messageText,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            chatroomId: chatroomId,
+            fileId: fileData?.fileId || null,
+            filename: fileData?.filename || null
+        };
+
+        stompClient.send("/app/chat", {}, JSON.stringify(message));
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        connect();
+
+        const form = document.querySelector('.chat-input-area');
+        const textInput = form.querySelector('input[name="message"]');
+        const fileInput = form.querySelector('input[type="file"]');
+
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const text = textInput.value.trim();
+            const file = fileInput.files.length > 0 ? fileInput.files[0] : null;
+
+            if (text.length === 0 && !file) return;
+
+            await sendMessageWithFile(text, file);
+            textInput.value = '';
+            fileInput.value = '';
+            document.getElementById('selectedFileName').textContent = '';
+        });
+    });
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

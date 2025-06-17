@@ -137,6 +137,9 @@ public class ChatroomService {
     public User requireMembershipOrThrow(Long chatroomId) {
         User user = currentUserService.getCurrentAppUser();
         if (user == null || !isUserMemberOfChatroom(chatroomId, user.getId())) {
+            if (user == null) {
+                throw new AccessDeniedException("You must be logged in to access this chatroom.");
+            }
             throw new AccessDeniedException("You are not a member of this chatroom.");
         }
         return user;

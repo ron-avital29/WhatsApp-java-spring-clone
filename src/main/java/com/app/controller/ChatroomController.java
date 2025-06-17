@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/chatrooms")
@@ -46,35 +47,59 @@ public class ChatroomController {
     @Autowired
     private FileService fileService;
 
-    @PostMapping("/{chatroomId}/send-message")
-    public String sendMessage(@PathVariable Long chatroomId,
-                              @RequestParam("message") String content,
-                              @RequestParam(value = "file", required = false) MultipartFile file,
-                              RedirectAttributes redirectAttributes) {
-        if (content.length() > 255) {
-            redirectAttributes.addFlashAttribute("error", "Message must be 255 characters or less.");
-            return "redirect:/chatrooms/" + chatroomId + "/view-chatroom";
-        }
+//    @PostMapping("/{chatroomId}/send-message")
+//    public String sendMessage(@PathVariable Long chatroomId,
+//                              @RequestParam("message") String content,
+//                              @RequestParam(value = "file", required = false) MultipartFile file,
+//                              RedirectAttributes redirectAttributes) {
+//        if (content.length() > 255) {
+//            redirectAttributes.addFlashAttribute("error", "Message must be 255 characters or less.");
+//            return "redirect:/chatrooms/" + chatroomId + "/view-chatroom";
+//        }
+//
+//        // Ensure user is a member and chatroom exists
+//        User user = chatroomService.requireMembershipOrThrow(chatroomId);
+//        Chatroom chatroom = chatroomService.findById(chatroomId)
+//                .orElseThrow(() -> new IllegalArgumentException("Chatroom not found"));
+//
+//        // Handle file upload
+//        File attachedFile = null;
+//        try {
+//            attachedFile = fileService.saveFile(file); // returns null if file is empty
+//        } catch (IOException e) {
+//            redirectAttributes.addFlashAttribute("error", "File upload failed: " + e.getMessage());
+//            return "redirect:/chatrooms/" + chatroomId + "/view-chatroom";
+//        }
+//
+//        // Pass file to messageService
+//        messageService.sendMessageToChatroom(content, chatroom, user, attachedFile);
+//
+//        return "redirect:/chatrooms/" + chatroomId + "/view-chatroom";
+//    }
 
-        // Ensure user is a member and chatroom exists
+    @PostMapping("/{chatroomId}/upload")
+    @ResponseBody
+    public ResponseEntity<?> uploadFile(
+            @PathVariable Long chatroomId,
+            @RequestParam("file") MultipartFile multipartFile) {
+
+        System.out.println("DEBUG: Upload requested for chatroomId = " + chatroomId);
+
+        // Ensure user is member of chatroom
         User user = chatroomService.requireMembershipOrThrow(chatroomId);
-        Chatroom chatroom = chatroomService.findById(chatroomId)
-                .orElseThrow(() -> new IllegalArgumentException("Chatroom not found"));
 
-        // Handle file upload
-        File attachedFile = null;
         try {
-            attachedFile = fileService.saveFile(file); // returns null if file is empty
+            File file = fileService.saveFile(multipartFile);
+            return ResponseEntity.ok().body(Map.of(
+                    "fileId", file.getId(),
+                    "filename", file.getFilename()
+            ));
         } catch (IOException e) {
-            redirectAttributes.addFlashAttribute("error", "File upload failed: " + e.getMessage());
-            return "redirect:/chatrooms/" + chatroomId + "/view-chatroom";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("File upload failed: " + e.getMessage());
         }
-
-        // Pass file to messageService
-        messageService.sendMessageToChatroom(content, chatroom, user, attachedFile);
-
-        return "redirect:/chatrooms/" + chatroomId + "/view-chatroom";
     }
+
 
     @GetMapping("/files/{id}/download")
     public ResponseEntity<byte[]> downloadFile(@PathVariable Long id) {
@@ -294,15 +319,19 @@ public class ChatroomController {
     @GetMapping("/{chatroomId}/view-chatroom")
     public String viewChatroom(@PathVariable Long chatroomId, Model model) {
 
-        chatroomService.requireMembershipOrThrow(chatroomId);
-
         Chatroom chatroom = chatroomService.findById(chatroomId).orElseThrow();
 
         List<Message> messages = messageRepository.findByChatroomOrderByTimestampAsc(chatroom);
 
+        User user = chatroomService.requireMembershipOrThrow(chatroomId);
+
         model.addAttribute("chatroomId", chatroomId);
         model.addAttribute("chatroomType", chatroom.getType().toString());
         model.addAttribute("messages", messages);
+
+        // I think this is not needed, but leaving it here for now; we can access userId in the backend
+        model.addAttribute("currentUserId", user.getId());
+        model.addAttribute("currentUserName", user.getUsername());
 
         return "view-chatroom";
     }

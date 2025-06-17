@@ -27,6 +27,7 @@ public class CurrentUserService {
     public User getCurrentAppUser() {
         OAuth2User oAuth = getCurrentUser();
         if (oAuth == null) {
+            System.out.println("DEBUG: No authenticated user found.");
             return null;
         }
         String email = oAuth.getAttribute("email");   // adjust key if provider differs
