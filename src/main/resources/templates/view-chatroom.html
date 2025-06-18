@@ -125,12 +125,20 @@
             <div>
                 <div class="chat-bubble">
                     <div th:if="${msg.file != null}">
-                        <img class="image-preview" th:if="${msg.file != null} and ${msg.file.mimeType != null} and ${msg.file.mimeType.startsWith('image/')}"
-                             th:src="@{/chatrooms/files/{id}/download(id=${msg.file.id})}"
-                             style="max-width: 100px; max-height: 100px; margin-left: 10px;" />
+                        <div th:if="${#strings.endsWith(msg.file.filename, '.jpg') or
+                 #strings.endsWith(msg.file.filename, '.jpeg') or
+                 #strings.endsWith(msg.file.filename, '.png') or
+                 #strings.endsWith(msg.file.filename, '.gif')}">
+                            <img class="image-preview"
+                                 th:src="@{/chatrooms/files/{id}/download(id=${msg.file.id})}"
+                                 style="max-width: 100px; max-height: 100px; margin-left: 10px;" />
+                        </div>
+
                         <a th:href="@{/chatrooms/files/{id}/download(id=${msg.file.id})}"
                            th:text="${msg.file.filename}" download></a>
                     </div>
+
+
                     <span class="sender-name" th:if="${msg.senderName != currentUser}" th:text="${msg.senderName}">Sender</span>
                     <div th:text="${msg.content}">Message content</div>
                     <div class="chat-meta" th:text="${#temporals.format(msg.timestamp, 'HH:mm')}">1/1/1970</div>
@@ -150,6 +158,11 @@
         <button type="submit" class="btn btn-success px-3">Send</button>
     </form>
     <span id="selectedFileName" class="ms-2 text-success small"></span>
+    <div id="uploadSpinner" class="ms-2 text-muted small d-none">
+        <div class="spinner-border spinner-border-sm text-secondary me-2" role="status"></div>
+        Uploading file...
+    </div>
+
 </div>
 
 <footer th:replace="~{fragments/footer.html :: footer}"></footer>
@@ -175,6 +188,12 @@
 </script>
 
 <script th:inline="javascript">
+    let fileUploading = false;
+
+    function disableSendButton(disabled) {
+        const sendBtn = document.querySelector('.chat-input-area button[type="submit"]');
+        if (sendBtn) sendBtn.disabled = disabled;
+    }
     let chatroomId = [[${chatroomId}]];
     let stompClient = null;
 
@@ -223,24 +242,44 @@
     }
 
     async function uploadFile(file) {
+        fileUploading = true;
+        disableSendButton(true);
+
+        // Show spinner
+        document.getElementById('uploadSpinner').classList.remove('d-none');
+
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await fetch(`/chatrooms/${chatroomId}/upload`, {
-            method: "POST",
-            body: formData
-        });
+        try {
+            const response = await fetch(`/chatrooms/${chatroomId}/upload`, {
+                method: "POST",
+                body: formData
+            });
 
-        if (!response.ok) {
-            throw new Error("File upload failed");
+            if (!response.ok) {
+                throw new Error("File upload failed");
+            }
+
+            return await response.json(); // returns { fileId, filename }
+
+        } finally {
+            fileUploading = false;
+            disableSendButton(false);
+            // Hide spinner
+            document.getElementById('uploadSpinner').classList.add('d-none');
         }
-
-        return await response.json(); // returns { fileId, filename }
     }
+
+
 
     async function sendMessageWithFile(messageText, file) {
         const currentUserId = document.getElementById('app-data').dataset.currentUserId;
         const currentUserName = document.getElementById('app-data').dataset.currentUserName;
+        if (fileUploading) {
+            alert("Please wait until the file finishes uploading.");
+            return;
+        }
 
         let fileData = null;
         if (file) {
