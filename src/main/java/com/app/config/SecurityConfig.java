@@ -16,6 +16,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/login", "/error").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")  // protect admin paths
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

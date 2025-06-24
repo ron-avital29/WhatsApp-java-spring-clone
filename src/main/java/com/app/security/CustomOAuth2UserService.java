@@ -45,27 +45,22 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String name = oauthUser.getAttribute("name");
         String avatar = oauthUser.getAttribute("picture");
 
-        Optional<User> existingUser = userRepository.findByGoogleId(googleId);  // Find by googleId, not email
-
-        System.out.println("User exists? " + existingUser.isPresent());
-
-        if (existingUser.isEmpty()) {
-            User newUser = new User();
-            newUser.setGoogleId(googleId);  // Set Google ID
-            newUser.setEmail(email);
-            newUser.setUsername(name);
-            newUser.setAvatarId(avatar);
-            newUser.setRole("USER");
-            newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString())); // Random password
-            System.out.println("Saving new user: " + email);
-            userRepository.save(newUser);
-        }
+        User user = userRepository.findByGoogleId(googleId)
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setGoogleId(googleId);
+                    newUser.setEmail(email);
+                    newUser.setUsername(name);
+                    newUser.setAvatarId(avatar);
+                    newUser.setRole("USER");
+                    newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+                    return userRepository.save(newUser);
+                });
 
         userSessionBean.setLoggedIn(true);
 
-        // Return the OAuth2User with authorities and attributes
         return new DefaultOAuth2User(
-                List.of(new SimpleGrantedAuthority("ROLE_USER")),
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole())),
                 oauthUser.getAttributes(),
                 "sub"
         );

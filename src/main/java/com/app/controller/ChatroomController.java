@@ -321,6 +321,9 @@ public class ChatroomController {
         model.addAttribute("reportedByMeIds", reportedByMe); // rename for clarity
 
 
+        // for debug - print the role of the user:
+        System.out.println("DEBUG: User " + user.getUsername() + " has roles: " + user.getRole());
+
         return "view-chatroom";
     }
 
