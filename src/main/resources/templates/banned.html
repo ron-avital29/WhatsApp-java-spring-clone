@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Banned</title>
+</head>
+<body>
+<h2>You are banned until:</h2>
+<p th:text="${bannedUntil}">DATE</p>
+<a href="/login"><button>Return to Login</button></a>
+</body>
+</html>

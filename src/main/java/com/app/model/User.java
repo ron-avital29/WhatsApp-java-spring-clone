@@ -63,5 +63,22 @@ public class User {
     @OneToMany(mappedBy = "reportedUser", cascade = CascadeType.ALL)
     private List<Report> reportsReceived;
 
+    @Column(name = "banned_until")
+    private LocalDateTime bannedUntil;
+
+    public boolean isBanned() {
+        return bannedUntil != null && bannedUntil.isAfter(LocalDateTime.now());
+    }
+
+    public String getBanDurationMessage() {
+        if (bannedUntil == null) return "Not banned";
+        long days = java.time.Duration.between(LocalDateTime.now(), bannedUntil).toDays();
+        if (days >= 365 * 80) return "forever";
+        if (days >= 7) return "1 week";
+        if (days >= 1) return "24 hours";
+        return "less than a day";
+    }
+
+
 
 }

@@ -3,8 +3,10 @@ package com.app.security;
 import com.app.model.User;
 import com.app.repo.UserRepository;
 import com.app.session.UserSessionBean;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,6 +32,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private UserSessionBean userSessionBean;
 
     @Autowired
+    private HttpServletRequest request;
+
+    @Autowired
     public CustomOAuth2UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -37,8 +42,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     @Override
     @Transactional
-    public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
-        OAuth2User oauthUser = new DefaultOAuth2UserService().loadUser(request);
+    public OAuth2User loadUser(OAuth2UserRequest oauthRequest) throws OAuth2AuthenticationException {
+        OAuth2User oauthUser = new DefaultOAuth2UserService().loadUser(oauthRequest);
 
         String googleId = oauthUser.getAttribute("sub");   // Unique Google ID
         String email = oauthUser.getAttribute("email");
@@ -57,6 +62,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                     return userRepository.save(newUser);
                 });
 
+        if (user.isBanned()) {
+            request.getSession().setAttribute("bannedUntil", user.getBannedUntil());
+            throw new LockedException("User is banned");
+        }
+
         userSessionBean.setLoggedIn(true);
 
         return new DefaultOAuth2User(
@@ -65,4 +75,5 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 "sub"
         );
     }
+
 }

@@ -71,5 +71,19 @@ public class UserService {
                 .map(User::getUsername) // or getDisplayName if you rename the field
                 .orElse("Unknown User");
     }
+
+    public void banUser(Long userId, String duration) {
+        User user = userRepository.findById(userId).orElseThrow();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime bannedUntil = switch (duration) {
+            case "24h" -> now.plusHours(24);
+            case "1w" -> now.plusDays(7);
+            default -> now.plusYears(100); // ~forever
+        };
+
+        user.setBannedUntil(bannedUntil);
+        userRepository.save(user);
+    }
+
 }
 
