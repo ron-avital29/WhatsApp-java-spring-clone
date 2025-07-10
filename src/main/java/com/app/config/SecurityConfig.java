@@ -19,7 +19,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/img/**", "/login", "/error").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/img/**", "/login", "/error", "/banned").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")  // protect admin paths
                         .anyRequest().authenticated()
                 )
@@ -46,11 +46,11 @@ public class SecurityConfig {
     @Bean
     public AuthenticationFailureHandler authenticationFailureHandler() {
         return (HttpServletRequest request, HttpServletResponse response, org.springframework.security.core.AuthenticationException exception) -> {
-            System.out.println("SDF Authentication failed: " + exception.getMessage());
-            if (exception instanceof LockedException) { // bug is here, debug this
+            if (exception instanceof LockedException) {
+                System.out.println("SDF Authentication failed: " + exception.getMessage());
                 response.sendRedirect("/banned");
             } else {
-                response.sendRedirect("/login?error");
+                response.sendRedirect("/login");
             }
         };
     }

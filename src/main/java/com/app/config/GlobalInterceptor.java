@@ -22,7 +22,7 @@ public class GlobalInterceptor implements HandlerInterceptor {
          * CHECK IF WE NEED THE js AND CSS
          */
         // Allow access to login, oauth, static resources:
-        if (path.startsWith("/login") || path.startsWith("/oauth2") || path.startsWith("/css") || path.startsWith("/js") || path.equals("/")) {
+        if (path.startsWith("/login") || path.startsWith("/oauth2") || path.startsWith("/css") || path.startsWith("/js") || path.equals("/") || path.startsWith("/banned")) {
             // If already logged in → redirect /login to /home
             if ((path.startsWith("/login") || path.equals("/")) && userSessionBean.isLoggedIn()) {
                 response.sendRedirect("/home");
