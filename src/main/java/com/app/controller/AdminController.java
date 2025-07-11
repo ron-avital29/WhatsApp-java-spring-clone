@@ -1,5 +1,8 @@
 package com.app.controller;
 
+import com.app.dto.BannedUserDTO;
+import com.app.dto.MessageReportDTO;
+import com.app.dto.ReportDTO;
 import com.app.model.Message;
 import com.app.model.Report;
 import com.app.model.ReportStatus;
@@ -13,12 +16,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-
     @Autowired
     private ReportRepository reportRepository;
 
@@ -35,16 +41,17 @@ public class AdminController {
     public String adminPanel(Model model) {
         System.out.println("entering adminPanel");
 
-        // Get all distinct reported messages with active (non-dismissed) reports
         List<Message> reportedMessages = reportRepository.findDistinctReportedMessagesWithActiveReports();
 
-        // For each message, load only its active reports and attach them to the message
         for (Message msg : reportedMessages) {
             List<Report> activeReports = reportRepository.findByReportedMessageAndStatusNot(msg, ReportStatus.DISMISSED);
             msg.setReports(activeReports);
         }
 
         model.addAttribute("reportedMessages", reportedMessages);
+
+        cleanupExpiredBans();
+
         return "admin-panel";
     }
 
@@ -58,10 +65,10 @@ public class AdminController {
 
     @PostMapping("/ban-user/{msgId}")
     public String banUser(@PathVariable Long msgId, @RequestParam String duration) {
+        System.out.println("Banning user for message ID: " + msgId + " with duration: " + duration);
         userService.banUserByMessageId(msgId, duration);
         return "redirect:/admin/panel";
     }
-
 
     @PostMapping("/dismiss-report/{reportId}")
     public String dismissReport(@PathVariable Long reportId) {
@@ -80,7 +87,82 @@ public class AdminController {
             r.setStatus(ReportStatus.DISMISSED);
         }
 
-        reportRepository.saveAll(reports);  // batch update
+        reportRepository.saveAll(reports);
         return "redirect:/admin/panel";
+    }
+
+//    @GetMapping("/panel/banned-users")
+//    @ResponseBody
+//    public List<BannedUserDTO> getBannedUsers() {
+//        return userRepository.findAll().stream()
+//                .filter(user -> user.getBannedUntil() != null)
+//                .map(user -> new BannedUserDTO(user.getId(), user.getUsername(), user.getBannedUntil()))
+//                .toList();
+//    }
+
+    @GetMapping("/panel/reports")
+    @ResponseBody
+    public List<MessageReportDTO> getLatestReports() {
+        List<Message> reportedMessages = reportRepository.findDistinctReportedMessagesWithActiveReports();
+
+        List<MessageReportDTO> dtos = new ArrayList<>();
+
+        for (Message msg : reportedMessages) {
+            List<Report> activeReports = reportRepository.findByReportedMessageAndStatusNot(msg, ReportStatus.DISMISSED);
+
+            MessageReportDTO dto = new MessageReportDTO();
+            dto.setId(msg.getId());
+            dto.setContent(msg.getContent());
+            dto.setSenderUsername(msg.getSender().getUsername());
+
+            if (msg.getSender().getBannedUntil() != null) {
+                String formatted = msg.getSender().getBannedUntil().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                dto.setBannedUntil(formatted);
+            }
+
+            List<ReportDTO> reportDTOs = new ArrayList<>();
+            for (Report report : activeReports) {
+                ReportDTO r = new ReportDTO();
+                r.setReporterUsername(report.getReporter().getUsername());
+                r.setReason(report.getReason());
+                reportDTOs.add(r);
+            }
+
+            dto.setReports(reportDTOs);
+            dtos.add(dto);
+        }
+
+        return dtos;
+    }
+
+    /**
+     * AJAX endpoint to get currently banned users
+     */
+    @GetMapping("/panel/banned-users")
+    @ResponseBody
+    public List<BannedUserDTO> getBannedUsers() {
+        LocalDateTime now = LocalDateTime.now();
+        List<User> bannedUsers = userRepository.findByBannedUntilIsNotNullAndBannedUntilAfter(now);
+
+        return bannedUsers.stream()
+                .map(user -> new BannedUserDTO(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getBannedUntil()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Clean up expired bans by setting banned_until to null
+     */
+    private void cleanupExpiredBans() {
+        LocalDateTime now = LocalDateTime.now();
+        List<User> expiredBans = userRepository.findUsersWithExpiredBans(now);
+
+        for (User user : expiredBans) {
+            user.setBannedUntil(null);
+            userRepository.save(user);
+        }
     }
 }

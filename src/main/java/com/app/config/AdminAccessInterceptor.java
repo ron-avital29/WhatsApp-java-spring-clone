@@ -15,7 +15,8 @@ public class AdminAccessInterceptor implements HandlerInterceptor {
 
     // Pages that admin IS allowed to access
     private static final Set<String> ALLOWED_PATHS_FOR_ADMIN = Set.of(
-            "/admin/panel",
+            "/admin",                    // All admin paths (covers /admin/panel, /admin/ban-user, etc.)
+            "/reports",                  // Reports directory
             "/home",
             "/logout",
             "/logout-confirm",
@@ -35,7 +36,8 @@ public class AdminAccessInterceptor implements HandlerInterceptor {
             boolean allowed = ALLOWED_PATHS_FOR_ADMIN.stream().anyMatch(path::startsWith);
 
             if (!allowed) {
-                response.sendRedirect("/home"); // or sendError(HttpServletResponse.SC_FORBIDDEN)
+                System.out.println("AdminAccessInterceptor: Blocking access to " + path); // Debug logging
+                response.sendRedirect("/home");
                 return false;
             }
         }
