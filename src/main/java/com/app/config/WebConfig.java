@@ -12,10 +12,19 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private UserSessionBean userSessionBean;
 
+    @Autowired
+    private AdminAccessInterceptor adminAccessInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new GlobalInterceptor(userSessionBean))
-                .addPathPatterns("/**"); // Apply to all paths
-    }
+                .addPathPatterns("/**");
 
+        registry.addInterceptor(adminAccessInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns(
+                        "/css/**", "/js/**", "/img/**",
+                        "/oauth2/**", "/error" // static and auth endpoints
+                );
+    }
 }
