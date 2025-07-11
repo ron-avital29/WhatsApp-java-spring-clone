@@ -119,11 +119,11 @@ public class ChatroomController {
 
     @GetMapping("/conversations/start")
     public String showStartConversationPage(@RequestParam(value = "query", required = false) String query, Model model) {
-        User currentUser = currentUserService.getCurrentAppUser();  // maybe move to an interceptor
+        User currentUser = currentUserService.getCurrentAppUser();
 
         List<User> users = List.of();
         if (query != null && !query.trim().isEmpty()) {
-            users = userRepository.findByUsernameContainingIgnoreCase(query);
+            userRepository.searchNonAdminUsers(query);
         }
 
         model.addAttribute("query", query);
@@ -141,6 +141,13 @@ public class ChatroomController {
         if (user.getId().toString().equals(userId)) {
             System.out.println("error, cannot start conversation with self");
             return "redirect:/home"; // Cannot start a convo with self
+        }
+
+        User otherUser = userRepository.findById(Long.parseLong(userId)).orElseThrow();
+
+        if ("ADMIN".equals(otherUser.getRole())) {
+            System.out.println("error, cannot start conversation with admin");
+            return "redirect:/home"; // or show error page
         }
 
         Chatroom chat = chatroomService.findOrCreatePrivateChat(user.getId(), Long.parseLong(userId));

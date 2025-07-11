@@ -25,5 +25,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT * FROM users WHERE id <> :currentUserId ORDER BY RAND() LIMIT :limit", nativeQuery = true)
     List<User> findRandomUsersExcluding(@Param("currentUserId") Long currentUserId, @Param("limit") int limit);
+
+    @Query("SELECT u FROM User u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :query, '%')) AND u.role <> 'ADMIN'")
+    List<User> searchNonAdminUsers(@Param("query") String query);
 }
 

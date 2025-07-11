@@ -26,7 +26,7 @@ public class SearchController {
 
     @GetMapping
     public String searchUsers(@RequestParam("query") String query, Model model) {
-        List<User> users = userRepository.findByUsernameContainingIgnoreCase(query);
+        List<User> users = userRepository.searchNonAdminUsers(query);
         model.addAttribute("users", users);
         model.addAttribute("query", query);
 
@@ -40,7 +40,7 @@ public class SearchController {
 
     @GetMapping("/start-convo-search")
     public String startConvoSearch(@RequestParam("query") String query, Model model) {
-        List<User> users = userRepository.findByUsernameContainingIgnoreCase(query);
+        List<User> users = userRepository.searchNonAdminUsers(query);
         model.addAttribute("users", users);
         model.addAttribute("query", query);
 

@@ -105,6 +105,10 @@ public class ChatroomService {
             throw new IllegalStateException("Only GROUP chatrooms can add members.");
         }
 
+        if ("ADMIN".equals(user.getRole())) {
+            throw new AccessDeniedException("You cannot add an admin to a group.");
+        }
+
         if (!chatroom.getMembers().contains(user)) {
             chatroom.getMembers().add(user);
             chatroomRepository.save(chatroom);

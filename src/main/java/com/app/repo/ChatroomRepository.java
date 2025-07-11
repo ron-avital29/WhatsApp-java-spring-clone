@@ -32,10 +32,12 @@ public interface ChatroomRepository extends JpaRepository<Chatroom, Long> {
             "FROM User u " +
             "WHERE (LOWER(u.username) LIKE LOWER(CONCAT('%', :query, '%')) " +
             "   OR LOWER(u.email) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+            "AND u.role <> 'ADMIN' " +
             "AND u.id NOT IN (" +
             "   SELECT m.id FROM Chatroom c JOIN c.members m WHERE c.id = :chatroomId" +
             ")")
     List<UserProjection> searchUsersNotInGroup(@Param("chatroomId") Long chatroomId, @Param("query") String query);
+
 
     @Query("SELECT c FROM Chatroom c JOIN c.members m " +
             "WHERE m.id IN :memberIds " +
