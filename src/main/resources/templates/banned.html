@@ -30,7 +30,7 @@
                     <p><strong>Banned until:</strong></p>
                     <h5 class="text-warning-emphasis mb-2" id="banned-until"
                         th:text="${#temporals.format(bannedUntil, 'dd/MM/yyyy HH:mm')}">
-                        14/07/2025 10:30
+                        29/07/1998 04:30
                     </h5>
 
                     <div id="countdown">Calculating time remaining...</div>
@@ -73,7 +73,18 @@
         const minutes = Math.floor((diff / (1000 * 60)) % 60);
         const seconds = Math.floor((diff / 1000) % 60);
 
-        countdownEl.textContent = `Time remaining: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+        let s = "Time remaining: ";
+
+        if (days) {
+            s += `${days}d ${hours}h ${minutes}m`;
+        } else if (hours) {
+            s += `${hours}h ${minutes}m`;
+        } else if (minutes) {
+            s += `${minutes}m`;
+        }
+
+        s += ` ${seconds}s`;
+        countdownEl.textContent = s;
     }
 
     updateCountdown();
