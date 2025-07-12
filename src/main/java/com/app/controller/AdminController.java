@@ -120,6 +120,12 @@ public class AdminController {
                 dto.setBannedUntil(formatted);
             }
 
+            if (msg.getFile() != null) {
+                dto.setFileId(msg.getFile().getId());
+                dto.setFileName(msg.getFile().getFilename());
+                dto.setFileMimeType(msg.getFile().getMimeType());
+            }
+
             List<ReportDTO> reportDTOs = new ArrayList<>();
             for (Report report : activeReports) {
                 ReportDTO r = new ReportDTO();

@@ -23,6 +23,12 @@
             padding-bottom: 5px;
             margin-bottom: 10px;
         }
+        .image-preview {
+            max-width: 150px;
+            max-height: 150px;
+            margin-bottom: 10px;
+            display: block;
+        }
     </style>
 </head>
 
@@ -34,57 +40,8 @@
     <h1 class="mb-4 text-center">Admin Panel</h1>
 
     <div id="reportContainer">
-        <div class="text-center text-muted" id="noReportsMessage" th:if="${#lists.isEmpty(reportedMessages)}">
-            No reported messages found.
-        </div>
-
-        <div class="row" id="reportList" th:each="msg : ${reportedMessages}">
-            <div class="col-md-8 offset-md-2 mb-4">
-                <div class="card bg-secondary-subtle text-dark border-0 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            Message by <span th:text="${msg.sender.username}">Sender</span>
-                        </h5>
-                        <p class="card-text" th:text="${msg.content}">Message content</p>
-
-                        <div th:if="${msg.file != null}">
-                            <div th:if="${msg.file.mimeType != null}">
-                                <div th:if="${#strings.startsWith(msg.file.mimeType, 'image/')}">
-                                    <img class="image-preview" th:src="@{/chatrooms/files/{id}/download(id=${msg.file.id})}" />
-                                </div>
-                            </div>
-                            <a th:href="@{/chatrooms/files/{id}/download(id=${msg.file.id})}" th:text="${msg.file.filename}" download></a>
-                        </div>
-
-                        <h6 class="mt-3">Reports:</h6>
-                        <ul class="list-group list-group-flush mb-3">
-                            <li class="list-group-item bg-light-subtle text-dark" th:each="r : ${msg.reports}">
-                                <strong th:text="${r.reporter.username}">Reporter</strong>:
-                                <span th:text="${r.reason}">Reason</span>
-                            </li>
-                        </ul>
-
-                        <form th:action="@{/admin/dismiss-message-reports/{id}(id=${msg.id})}" method="post" class="mb-3">
-                            <button type="submit" class="btn btn-outline-secondary btn-sm">Dismiss All Reports</button>
-                        </form>
-
-                        <form th:action="@{/admin/ban-user/{msgId}(msgId=${msg.id})}" method="post" class="d-flex gap-2">
-                            <select name="duration" class="form-select form-select-sm w-auto">
-                                <option value="24h">Ban 24h</option>
-                                <option value="1w">Ban 1 week</option>
-                                <option value="forever">Ban forever</option>
-                            </select>
-                            <button class="btn btn-danger btn-sm" type="submit">Ban User</button>
-                        </form>
-
-                        <div class="mt-2" th:if="${msg.sender.bannedUntil != null}">
-                            <small class="text-danger">
-                                User is banned until: <span th:text="${msg.sender.bannedUntil}"></span>
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="text-center text-muted" id="noReportsMessage">
+            Loading reports...
         </div>
     </div>
 </div>
@@ -106,21 +63,38 @@
             const response = await fetch('/admin/panel/reports');
             const data = await response.json();
 
-            const reportContainer = document.getElementById('reportContainer');
-
+            const container = document.getElementById('reportContainer');
             if (!data || data.length === 0) {
-                reportContainer.innerHTML = '<div class="text-center text-muted">No reported messages found.</div>';
+                container.innerHTML = '<div class="text-center text-muted">No reported messages found.</div>';
                 return;
             }
 
             let html = '<div class="row">';
             data.forEach(msg => {
+                const fileHtml = msg.fileId && msg.fileName ? `
+                    <div class="mb-2">
+                        ${msg.fileMimeType && msg.fileMimeType.startsWith('image/') ? `
+                            <img class="image-preview"
+                                 src="/chatrooms/files/${msg.fileId}/download"
+                                 alt="${msg.fileName}"
+                                 onerror="this.style.display='none'" />
+                        ` : ''}
+                        <div>
+                            <a href="/chatrooms/files/${msg.fileId}/download" download>
+                                ${msg.fileName}
+                            </a>
+                        </div>
+                    </div>
+                ` : '';
+
                 html += `
                     <div class="col-md-8 offset-md-2 mb-4">
                         <div class="card bg-secondary-subtle text-dark border-0 shadow-sm">
                             <div class="card-body">
                                 <h5 class="card-title">Message by <span>${msg.senderUsername}</span></h5>
                                 <p class="card-text">${msg.content}</p>
+
+                                ${fileHtml}
 
                                 <h6 class="mt-3">Reports:</h6>
                                 <ul class="list-group list-group-flush mb-3">
@@ -157,9 +131,11 @@
                 `;
             });
             html += '</div>';
-            reportContainer.innerHTML = html;
-        } catch (e) {
-            console.error("Polling error (reports):", e);
+            container.innerHTML = html;
+        } catch (err) {
+            console.error("Polling error (reports):", err);
+            document.getElementById('reportContainer').innerHTML =
+                '<div class="text-danger text-center">Failed to load reports.</div>';
         }
     }
 
@@ -176,9 +152,7 @@
 
             list.innerHTML = '';
             users.forEach(u => {
-                const bannedUntilText = u.bannedUntil ?
-                    new Date(u.bannedUntil).toLocaleString() : 'Forever';
-
+                const bannedUntilText = u.bannedUntil ? new Date(u.bannedUntil).toLocaleString() : 'Forever';
                 list.innerHTML += `
                 <li>
                     <strong>${u.username}</strong><br>
