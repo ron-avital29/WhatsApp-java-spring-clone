@@ -1,5 +1,6 @@
 package com.app.repo;
 
+import com.app.dto.ChatMessageDTO;
 import com.app.model.Chatroom;
 import com.app.model.ChatroomType;
 import com.app.model.User;
@@ -52,6 +53,5 @@ public interface ChatroomRepository extends JpaRepository<Chatroom, Long> {
             "AND LOWER(c.name) LIKE LOWER(CONCAT('%', :query, '%')) " +
             "AND :userId NOT IN (SELECT m.id FROM c.members m)")
     List<Chatroom> searchCommunities(String query, Long userId);
-
 }
 

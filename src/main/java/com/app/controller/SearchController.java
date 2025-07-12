@@ -1,8 +1,11 @@
 package com.app.controller;
 
+import com.app.dto.ChatMessageDTO;
 import com.app.model.Chatroom;
+import com.app.model.Message;
 import com.app.model.User;
 import com.app.repo.ChatroomRepository;
+import com.app.repo.MessageRepository;
 import com.app.repo.UserRepository;
 import com.app.service.CurrentUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,18 +25,36 @@ public class SearchController {
     private UserRepository userRepository;
 
     @Autowired
-    private CurrentUserService currentUserService;
+    private MessageRepository messageRepository;
+
+//    @GetMapping
+//    public String searchUsers(@RequestParam("query") String query, Model model) {
+//        List<User> users = userRepository.searchNonAdminUsers(query);
+//        model.addAttribute("users", users);
+//        model.addAttribute("query", query);
+//
+//
+//
+//        // Later:
+//        // model.addAttribute("groups", ...);
+//        // model.addAttribute("messages", ...);
+//        // model.addAttribute("communities", ...);
+//
+//        return "search";
+//    }
 
     @GetMapping
-    public String searchUsers(@RequestParam("query") String query, Model model) {
+    public String searchAllMessagesAndUsers(@RequestParam("query") String query, Model model) {
+        if (query == null || query.trim().isEmpty()) {
+            return "redirect:/";
+        }
+
         List<User> users = userRepository.searchNonAdminUsers(query);
         model.addAttribute("users", users);
         model.addAttribute("query", query);
 
-        // Later:
-        // model.addAttribute("groups", ...);
-        // model.addAttribute("messages", ...);
-        // model.addAttribute("communities", ...);
+        List<Message> messagesInUsersChats = messageRepository.searchMessagesInUsersChats(query);
+        model.addAttribute("messages", messagesInUsersChats);
 
         return "search";
     }
