@@ -1,5 +1,7 @@
 package com.app.controller;
 
+import com.app.exception.ForbiddenException;
+import com.app.exception.ResourceNotFoundException;
 import com.app.model.*;
 import com.app.projection.UserProjection;
 import com.app.repo.MessageRepository;
@@ -66,13 +68,13 @@ public class ChatroomController {
     @PostMapping("/conversations/start/{userId}")
     public String startConversation(@PathVariable String userId) {
         OAuth2User currentUser = currentUserService.getCurrentUser();
-        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow(() -> new ResourceNotFoundException("Current user not found."));
         if (user.getId().toString().equals(userId)) {
             return "redirect:/home";
         }
-        User otherUser = userRepository.findById(Long.parseLong(userId)).orElseThrow();
+        User otherUser = userRepository.findById(Long.parseLong(userId)).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         if ("ADMIN".equals(otherUser.getRole())) {
-            return "redirect:/home";
+            throw new ForbiddenException("You cannot chat with admin.");
         }
         Chatroom chat = chatroomService.findOrCreatePrivateChat(user.getId(), Long.parseLong(userId));
         return "redirect:/chatrooms/" + chat.getId() + "/view-chatroom";
@@ -83,7 +85,8 @@ public class ChatroomController {
                                 @RequestParam(required = false) String query,
                                 Model model) {
         User user = chatroomService.requireMembershipOrThrow(chatroomId);
-        Chatroom chatroom = chatroomService.findById(chatroomId).orElseThrow();
+        Chatroom chatroom = chatroomService.findById(chatroomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chatroom not found with id: " + chatroomId));
         List<User> members = chatroomService.getChatroomMembers(chatroomId);
         List<UserProjection> users = (query == null || query.isEmpty())
                 ? List.of()
@@ -110,7 +113,7 @@ public class ChatroomController {
     public String createCommunity(@RequestParam String name,
                                   @RequestParam(required = false) boolean editableName) {
         OAuth2User currentUser = currentUserService.getCurrentUser();
-        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + currentUser.getAttribute("email")));
         Chatroom chatroom = chatroomService.createCommunity(name, user);
         return "redirect:/chatrooms/" + chatroom.getId() + "/view-chatroom";
     }
@@ -118,7 +121,7 @@ public class ChatroomController {
     @GetMapping("/getCommunities")
     public String getCommunities(Model model) {
         OAuth2User currentUser = currentUserService.getCurrentUser();
-        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + currentUser.getAttribute("email")));
         List<Chatroom> communities = chatroomService.findDiscoverableCommunities(user.getId());
         model.addAttribute("communities", communities);
         return "discover";
@@ -127,7 +130,7 @@ public class ChatroomController {
     @GetMapping("/search-community")
     public String searchCommunity(@RequestParam String query, Model model) {
         OAuth2User currentUser = currentUserService.getCurrentUser();
-        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + currentUser.getAttribute("email")));
         List<Chatroom> foundCommunities = chatroomService.searchCommunities(query, user.getId());
         model.addAttribute("foundCommunities", foundCommunities);
         model.addAttribute("query", query);
@@ -137,7 +140,7 @@ public class ChatroomController {
     @GetMapping("")
     public String myChatrooms(Model model) {
         OAuth2User currentUser = currentUserService.getCurrentUser();
-        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + currentUser.getAttribute("email")));
         List<Chatroom> myChats = chatroomService.findMyChatrooms(user.getId());
         Map<Long, String> displayNames = myChats.stream()
                 .collect(Collectors.toMap(
@@ -152,7 +155,7 @@ public class ChatroomController {
     @GetMapping("/discover")
     public String discoverCommunities(Model model) {
         OAuth2User currentUser = currentUserService.getCurrentUser();
-        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + currentUser.getAttribute("email")));
         List<Chatroom> communities = chatroomService.findDiscoverableCommunities(user.getId());
         model.addAttribute("communities", communities);
         return "discover";
@@ -161,7 +164,7 @@ public class ChatroomController {
     @PostMapping("/join/{chatroomId}")
     public String joinCommunity(@PathVariable Long chatroomId) {
         OAuth2User currentUser = currentUserService.getCurrentUser();
-        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + currentUser.getAttribute("email")));
         chatroomService.joinCommunity(chatroomId, user.getId());
         return "redirect:/chatrooms/discover";
     }
@@ -169,7 +172,7 @@ public class ChatroomController {
     @PostMapping("/leave/{chatroomId}")
     public String leaveChatroom(@PathVariable Long chatroomId) {
         OAuth2User currentUser = currentUserService.getCurrentUser();
-        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + currentUser.getAttribute("email")));
         chatroomService.leaveChatroom(chatroomId, user.getId());
         return "redirect:/chatrooms";
     }
@@ -185,7 +188,7 @@ public class ChatroomController {
     @PostMapping("/{chatroomId}/add-member/{userId}")
     public String addUserToGroup(@PathVariable Long chatroomId, @PathVariable Long userId, Model model) {
         chatroomService.requireMembershipOrThrow(chatroomId);
-        Chatroom chatroom = chatroomService.findById(chatroomId).orElseThrow();
+        Chatroom chatroom = chatroomService.findById(chatroomId).orElseThrow(() -> new ResourceNotFoundException("Chatroom not found with id: " + chatroomId));
         chatroomService.addUserToGroup(chatroomId, userId);
         model.addAttribute("chatroom", chatroom);
         return "redirect:/chatrooms/" + chatroomId + "/manage";
@@ -205,7 +208,7 @@ public class ChatroomController {
     public String createGroup(@RequestParam String name,
                               @RequestParam(required = false) boolean editableName) {
         OAuth2User currentUser = currentUserService.getCurrentUser();
-        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + currentUser.getAttribute("email")));
         Chatroom chatroom = chatroomService.createGroup(name, editableName, user);
         return "redirect:/chatrooms/" + chatroom.getId() + "/view-chatroom";
     }
@@ -213,7 +216,7 @@ public class ChatroomController {
     @GetMapping("/{chatroomId}/view-chatroom")
     public String viewChatroom(@PathVariable Long chatroomId, Model model) {
         userSession.visitChatroom(chatroomId);
-        Chatroom chatroom = chatroomService.findById(chatroomId).orElseThrow();
+        Chatroom chatroom = chatroomService.findById(chatroomId).orElseThrow(() -> new ResourceNotFoundException("Chatroom not found with id: " + chatroomId));
         List<Message> messages = messageRepository.findByChatroomOrderByTimestampAsc(chatroom);
         User user = chatroomService.requireMembershipOrThrow(chatroomId);
         model.addAttribute("chatroomId", chatroomId);
@@ -224,9 +227,7 @@ public class ChatroomController {
         model.addAttribute("chatroomName", chatroom.getDisplayName(user));
         model.addAttribute("chatroomType", chatroom.getType().toString());
         List<Report> myReports = reportRepository.findAllByReporter(user);
-        Set<Long> reportedByMe = myReports.stream()
-                .map(r -> r.getReportedMessage().getId())
-                .collect(Collectors.toSet());
+        Set<Long> reportedByMe = myReports.stream().map(r -> r.getReportedMessage().getId()).collect(Collectors.toSet());
         model.addAttribute("reportedByMeIds", reportedByMe);
         return "view-chatroom";
     }
@@ -238,14 +239,12 @@ public class ChatroomController {
                                  Model model) {
         boolean editNameMode = "true".equalsIgnoreCase(editNameParam);
         chatroomService.requireMembershipOrThrow(chatroomId);
-        Chatroom chatroom = chatroomService.findById(chatroomId).orElseThrow();
+        Chatroom chatroom = chatroomService.findById(chatroomId).orElseThrow(() -> new ResourceNotFoundException("Chatroom not found with id: " + chatroomId));
         model.addAttribute("chatroomId", chatroomId);
         model.addAttribute("chatroomType", chatroom.getType().toString());
         List<User> members = chatroomService.getChatroomMembers(chatroomId);
         model.addAttribute("members", members);
-        List<UserProjection> users = (query == null || query.isEmpty())
-                ? List.of()
-                : chatroomService.searchUsersNotInGroup(chatroomId, query);
+        List<UserProjection> users = (query == null || query.isEmpty()) ? List.of() : chatroomService.searchUsersNotInGroup(chatroomId, query);
         model.addAttribute("query", query);
         model.addAttribute("users", users);
         model.addAttribute("chatroom", chatroom);

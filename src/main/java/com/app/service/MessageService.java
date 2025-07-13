@@ -1,6 +1,7 @@
 package com.app.service;
 
 import com.app.dto.ChatMessageDTO;
+import com.app.exception.ResourceNotFoundException;
 import com.app.model.Chatroom;
 import com.app.model.File;
 import com.app.model.Message;
@@ -41,16 +42,16 @@ public class MessageService {
 
     public ChatMessageDTO sendChatMessage(ChatMessageDTO dto) {
         Chatroom chatroom = chatroomService.findById(dto.getChatroomId())
-                .orElseThrow(() -> new IllegalArgumentException("Chatroom not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Chatroom not found"));
 
         User sender = userRepository.findById(dto.getFromId())
-                .orElseThrow(() -> new IllegalArgumentException("Sender not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Sender not found"));
 
         File file = null;
         if (dto.getFileId() != null) {
             file = fileService.getFileById(dto.getFileId());
             if (file == null) {
-                throw new IllegalArgumentException("File not found with ID: " + dto.getFileId());
+                throw new ResourceNotFoundException("File not found with ID: " + dto.getFileId());
             }
         }
 

@@ -2,6 +2,7 @@ package com.app.service;
 
 import com.app.dto.MessageReportDTO;
 import com.app.dto.ReportDTO;
+import com.app.exception.ResourceNotFoundException;
 import com.app.model.Message;
 import com.app.model.Report;
 import com.app.model.ReportStatus;
@@ -37,7 +38,8 @@ public class AdminService {
     }
 
     public void dismissReportsForMessage(Long messageId) {
-        Message message = messageRepository.findById(messageId).orElseThrow();
+        Message message = messageRepository.findById(messageId).orElseThrow(() -> new ResourceNotFoundException("Message with ID " + messageId + " not found."));
+
         List<Report> reports = reportRepository.findByReportedMessageAndStatusNot(message, ReportStatus.DISMISSED);
         LocalDateTime now = LocalDateTime.now();
 

@@ -1,15 +1,16 @@
 package com.app.service;
 
+import com.app.exception.ForbiddenException;
+import com.app.exception.ResourceNotFoundException;
 import com.app.model.Chatroom;
 import com.app.model.ChatroomType;
 import com.app.model.User;
+import com.app.projection.UserProjection;
 import com.app.repo.ChatroomRepository;
 import com.app.repo.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import com.app.projection.UserProjection;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,11 +42,13 @@ public class ChatroomService {
     }
 
     public synchronized void joinCommunity(Long chatroomId, Long userId) {
-        Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow();
-        User user = userRepository.findById(userId).orElseThrow();
+        Chatroom chatroom = chatroomRepository.findById(chatroomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chatroom not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (chatroom.getType() != ChatroomType.COMMUNITY) {
-            throw new IllegalStateException("You can only join COMMUNITY chatrooms.");
+            throw new ForbiddenException("You can only join COMMUNITY chatrooms.");
         }
 
         if (!chatroom.getMembers().contains(user)) {
@@ -55,24 +58,27 @@ public class ChatroomService {
     }
 
     public List<User> getChatroomMembers(Long chatroomId) {
-        Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow();
+        Chatroom chatroom = chatroomRepository.findById(chatroomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chatroom not found"));
         return List.copyOf(chatroom.getMembers());
     }
 
     public synchronized Chatroom editChatroomName(Long chatroomId, Long userId, String newName) {
-        Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow();
-        User user = userRepository.findById(userId).orElseThrow();
+        Chatroom chatroom = chatroomRepository.findById(chatroomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chatroom not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (chatroom.getType() != ChatroomType.GROUP) {
-            throw new IllegalStateException("Only GROUP chatroom names can be edited.");
+            throw new ForbiddenException("Only GROUP chatroom names can be edited.");
         }
 
         if (!chatroom.isEditableName()) {
-            throw new IllegalStateException("This group's name is not editable.");
+            throw new ForbiddenException("This group's name is not editable.");
         }
 
         if (!chatroom.getMembers().contains(user)) {
-            throw new IllegalStateException("You must be a member to edit this group's name.");
+            throw new ForbiddenException("You must be a member to edit this group's name.");
         }
 
         chatroom.setName(newName);
@@ -81,11 +87,13 @@ public class ChatroomService {
     }
 
     public synchronized void leaveChatroom(Long chatroomId, Long userId) {
-        Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow();
-        User user = userRepository.findById(userId).orElseThrow();
+        Chatroom chatroom = chatroomRepository.findById(chatroomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chatroom not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (chatroom.getType() == ChatroomType.PRIVATE) {
-            throw new IllegalStateException("Cannot leave private chatroom.");
+            throw new ForbiddenException("Cannot leave private chatroom.");
         }
 
         chatroom.getMembers().remove(user);
@@ -98,15 +106,17 @@ public class ChatroomService {
 
     @Transactional
     public synchronized void addUserToGroup(Long chatroomId, Long userId) {
-        Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow();
-        User user = userRepository.findById(userId).orElseThrow();
+        Chatroom chatroom = chatroomRepository.findById(chatroomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chatroom not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (chatroom.getType() != ChatroomType.GROUP) {
-            throw new IllegalStateException("Only GROUP chatrooms can add members.");
+            throw new ForbiddenException("Only GROUP chatrooms can add members.");
         }
 
         if ("ADMIN".equals(user.getRole())) {
-            throw new AccessDeniedException("You cannot add an admin to a group.");
+            throw new ForbiddenException("You cannot add an admin to a group.");
         }
 
         if (!chatroom.getMembers().contains(user)) {
@@ -127,23 +137,23 @@ public class ChatroomService {
         return chatroomRepository.save(chatroom);
     }
 
-    public boolean isUserMemberOfChatroom(Long chatroomId, Long useId) {
+    public boolean isUserMemberOfChatroom(Long chatroomId, Long userId) {
         Optional<Chatroom> chatroomOpt = chatroomRepository.findById(chatroomId);
         if (chatroomOpt.isEmpty()) {
             return false;
         }
         Chatroom chatroom = chatroomOpt.get();
         return chatroom.getMembers().stream()
-                .anyMatch(member -> member.getId().equals(useId));
+                .anyMatch(member -> member.getId().equals(userId));
     }
 
     public User requireMembershipOrThrow(Long chatroomId) {
         User user = currentUserService.getCurrentAppUser();
         if (user == null || !isUserMemberOfChatroom(chatroomId, user.getId())) {
             if (user == null) {
-                throw new AccessDeniedException("You must be logged in to access this chatroom.");
+                throw new ForbiddenException("You must be logged in to access this chatroom.");
             }
-            throw new AccessDeniedException("You are not a member of this chatroom.");
+            throw new ForbiddenException("You are not a member of this chatroom.");
         }
         return user;
     }
@@ -160,8 +170,10 @@ public class ChatroomService {
     }
 
     public synchronized Chatroom findOrCreatePrivateChat(Long myId, long otherId) {
-        User myUser = userRepository.findById(myId).orElseThrow();
-        User otherUser = userRepository.findById(otherId).orElseThrow();
+        User myUser = userRepository.findById(myId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User otherUser = userRepository.findById(otherId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Set<Long> memberIds = Set.of(myId, otherId);
         List<Chatroom> existingChats = chatroomRepository.findPrivateChatByMembers(memberIds, memberIds.size(), ChatroomType.PRIVATE);
