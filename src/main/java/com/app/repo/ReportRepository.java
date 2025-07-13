@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
 
@@ -20,13 +19,9 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
 
     List<Report> findByReportedMessageAndStatusNot(Message message, ReportStatus status);
 
-    //this funciton checks if a report exists for a specific reporter and reported message
-    Optional<Report> findByReporterAndReportedMessage(User reporter, Message reportedMessage);
-
     List<Report> findAllByReporter(User user);
 
     List<Report> findByReportedMessageAndStatus(Message message, ReportStatus status);
-
 
     boolean existsByUpdatedAtAfter(LocalDateTime sinceTime);
 }

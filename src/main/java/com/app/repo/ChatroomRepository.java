@@ -1,9 +1,7 @@
 package com.app.repo;
 
-import com.app.dto.ChatMessageDTO;
 import com.app.model.Chatroom;
 import com.app.model.ChatroomType;
-import com.app.model.User;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,8 +14,6 @@ import java.util.Set;
 
 @Repository
 public interface ChatroomRepository extends JpaRepository<Chatroom, Long> {
-
-    List<Chatroom> findByType(ChatroomType type);
 
     List<Chatroom> findByMembers_Id(Long userId);
 
@@ -39,7 +35,6 @@ public interface ChatroomRepository extends JpaRepository<Chatroom, Long> {
             ")")
     List<UserProjection> searchUsersNotInGroup(@Param("chatroomId") Long chatroomId, @Param("query") String query);
 
-
     @Query("SELECT c FROM Chatroom c JOIN c.members m " +
             "WHERE m.id IN :memberIds " +
             "GROUP BY c.id " +
@@ -48,7 +43,6 @@ public interface ChatroomRepository extends JpaRepository<Chatroom, Long> {
                                             @Param("memberCount") long memberCount,
                                             @Param("type") ChatroomType type);
 
-    // create a query that retrieves all communities that match the search query, and that the userId is not in them
     @Query("SELECT c FROM Chatroom c WHERE c.type = 'COMMUNITY' " +
             "AND LOWER(c.name) LIKE LOWER(CONCAT('%', :query, '%')) " +
             "AND :userId NOT IN (SELECT m.id FROM c.members m)")

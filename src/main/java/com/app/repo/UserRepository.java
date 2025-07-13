@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    List<User> findByUsername(String username); // Not unique anymore
+    List<User> findByUsername(String username);
 
     Optional<User> findByEmail(String email);
 
@@ -21,32 +21,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByGoogleId(String googleId);
 
-    boolean existsByGoogleId(String googleId);
-
-    List<User> findByUsernameContainingIgnoreCase(String query);
-
-    @Query(value = "SELECT * FROM users WHERE id <> :currentUserId ORDER BY RAND() LIMIT :limit", nativeQuery = true)
-    List<User> findRandomUsersExcluding(@Param("currentUserId") Long currentUserId, @Param("limit") int limit);
-
     @Query("SELECT u FROM User u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :query, '%')) AND u.role <> 'ADMIN'")
     List<User> searchNonAdminUsers(@Param("query") String query);
 
-    List<User> findByBannedUntilNotNullOrderByBannedUntilDesc();
-
-    /**
-     * Find users who are currently banned (banned_until is not null AND in the future)
-     */
-    @Query("SELECT u FROM User u WHERE u.bannedUntil IS NOT NULL AND u.bannedUntil > :now")
-    List<User> findCurrentlyBannedUsers(@Param("now") LocalDateTime now);
-
-    /**
-     * Alternative using method name query
-     */
     List<User> findByBannedUntilIsNotNullAndBannedUntilAfter(LocalDateTime now);
 
-    /**
-     * Find users with expired bans (for cleanup purposes)
-     */
     @Query("SELECT u FROM User u WHERE u.bannedUntil IS NOT NULL AND u.bannedUntil < :now")
     List<User> findUsersWithExpiredBans(@Param("now") LocalDateTime now);
 }

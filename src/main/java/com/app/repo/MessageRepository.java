@@ -1,6 +1,5 @@
 package com.app.repo;
 
-import com.app.dto.ChatMessageDTO;
 import com.app.model.Message;
 import com.app.model.Chatroom;
 import org.springframework.data.jpa.repository.JpaRepository;
