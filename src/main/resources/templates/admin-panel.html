@@ -5,31 +5,6 @@
     <title>Admin Panel - WhatsApp SN</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        #bannedUsersPanel {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            width: 300px;
-            max-height: 80vh;
-            overflow-y: auto;
-            background-color: #343a40;
-            padding: 15px;
-            border-radius: 8px;
-            color: white;
-        }
-        #bannedUsersPanel h5 {
-            border-bottom: 1px solid #777;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
-        }
-        .image-preview {
-            max-width: 150px;
-            max-height: 150px;
-            margin-bottom: 10px;
-            display: block;
-        }
-    </style>
 </head>
 
 <body class="bg-dark text-light">
@@ -41,8 +16,7 @@
 
     <div id="reportContainer" data-last-updated="1970-01-01T00:00:00Z"></div>
     <div class="text-center text-muted" id="noReportsMessage">
-            Loading reports...
-        </div>
+        Loading reports...
     </div>
 </div>
 
@@ -58,8 +32,6 @@
 <div th:insert="~{fragments/scripts.html :: bootstrapScript}"></div>
 
 <script>
-    // Fetch and display reported messages
-    // if there are any new reports, this will update the entire report list, else exit this function
     async function fetchReports() {
         const container = document.getElementById('reportContainer');
         const lastUpdated = container.getAttribute('data-last-updated');
@@ -142,7 +114,6 @@
             container.innerHTML = '<div class="text-danger text-center">Failed to load reports.</div>';
         }
     }
-
 
     async function fetchBannedUsers() {
         try {

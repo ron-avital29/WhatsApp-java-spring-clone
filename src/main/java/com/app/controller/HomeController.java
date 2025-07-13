@@ -31,7 +31,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String index() {
-        return "index";
+        return "DELETE_ME_index";
     }
 
     @GetMapping("/home")
