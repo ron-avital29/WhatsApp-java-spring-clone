@@ -4,41 +4,65 @@
     <meta charset="UTF-8">
     <title>Manage Broadcasts</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="bg-dark text-light">
+
 <nav th:replace="~{fragments/navbar.html :: navbar}"></nav>
+
 <div class="container my-5">
-    <h2>Manage Your Broadcasts</h2>
+    <div class="row g-4 justify-content-center">
 
-    <form th:action="@{/admin/broadcast/create}" method="post" class="mb-4">
-        <div class="mb-3">
-            <label for="content" class="form-label">Message Content</label>
-            <textarea class="form-control" id="content" name="content" required></textarea>
+        <!-- Create Broadcast Message Card -->
+        <div class="col-md-6">
+            <div class="card h-100 bg-secondary-subtle text-dark border-0 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Create New Broadcast</h4>
+                    <form th:action="@{/admin/broadcast/create}" method="post">
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Message</label>
+                            <textarea class="form-control" id="content" name="content" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="expiresAt" class="form-label">Expires At</label>
+                            <input type="datetime-local" class="form-control" id="expiresAt" name="expiresAt" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Broadcast</button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="expiresAt" class="form-label">Expires At</label>
-            <input type="datetime-local" class="form-control" id="expiresAt" name="expiresAt" required />
-        </div>
-        <button type="submit" class="btn btn-primary">Broadcast</button>
-    </form>
 
-    <h3>Active Broadcasts</h3>
-    <div th:each="msg : ${broadcasts}" class="card bg-light text-dark my-3">
-        <div class="card-body">
-            <p th:text="${msg.content}"></p>
-            <small class="text-muted">Expires: <span th:text="${#temporals.format(msg.expiresAt, 'yyyy-MM-dd HH:mm')}"></span></small>
-            <form th:action="@{/admin/broadcast/edit}" method="post" class="mt-2">
-                <input type="hidden" name="id" th:value="${msg.id}" />
-                <textarea name="content" class="form-control mb-2" th:text="${msg.content}"></textarea>
-                <button type="submit" class="btn btn-sm btn-warning">Edit</button>
-            </form>
-            <form th:action="@{/admin/broadcast/delete}" method="post" class="mt-1">
-                <input type="hidden" name="id" th:value="${msg.id}" />
-                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-            </form>
+        <!-- Manage Existing Broadcasts Card -->
+        <div class="col-md-6">
+            <div class="card h-100 bg-secondary-subtle text-dark border-0 shadow-sm">
+                <div class="card-body overflow-auto">
+                    <h4 class="card-title mb-4">Active Broadcasts</h4>
+                    <div th:if="${#lists.isEmpty(broadcasts)}" class="text-muted">
+                        No active messages.
+                    </div>
+                    <div th:each="msg : ${broadcasts}" class="mb-3 border-bottom pb-3">
+                        <p class="mb-1" th:text="${msg.content}"></p>
+                        <small class="text-muted">Expires: <span th:text="${#temporals.format(msg.expiresAt, 'yyyy-MM-dd HH:mm')}"></span></small>
+                        <form th:action="@{/admin/broadcast/edit}" method="post" class="mt-2">
+                            <input type="hidden" name="id" th:value="${msg.id}" />
+                            <textarea name="content" class="form-control mb-2" th:text="${msg.content}"></textarea>
+                            <button type="submit" class="btn btn-sm btn-warning">Edit</button>
+                        </form>
+                        <form th:action="@{/admin/broadcast/delete}" method="post" class="mt-1">
+                            <input type="hidden" name="id" th:value="${msg.id}" />
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
+
     </div>
 </div>
+
 <footer th:replace="~{fragments/footer.html :: footer}"></footer>
+<div th:insert="~{fragments/scripts.html :: bootstrapScript}"></div>
+
 </body>
 </html>
