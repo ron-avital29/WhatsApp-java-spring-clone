@@ -15,12 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.security.Principal;
-
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Controller
@@ -45,12 +43,10 @@ public class WebsocketController {
     private FileService fileService;
 
     @Autowired
-    private WebSocketEventListener webSocketEventListener;  // Add this to call new method
+    private WebSocketEventListener webSocketEventListener;
 
     @MessageMapping("/chat")
     public void send(ChatMessageDTO message) {
-        System.out.println("Received message: " + message);
-
         Chatroom chatroom = chatroomService.findById(message.getChatroomId())
                 .orElseThrow(() -> new IllegalArgumentException("Chatroom not found"));
 
@@ -76,12 +72,9 @@ public class WebsocketController {
             message.setFilename(file.getFilename());
         }
 
-        messagingTemplate.convertAndSend(
-                "/topic/messages/" + chatroom.getId(), message
-        );
+        messagingTemplate.convertAndSend("/topic/messages/" + chatroom.getId(), message);
     }
 
-    // New handler for join message to register user to chatroom
     @MessageMapping("/join")
     public void handleJoin(Map<String, Long> payload, StompHeaderAccessor accessor) {
         Long chatroomId = payload.get("chatroomId");
@@ -90,7 +83,6 @@ public class WebsocketController {
 
         if (user != null && chatroomId != null) {
             webSocketEventListener.addUserToChatroom(user.getName(), chatroomId, sessionId);
-            System.out.println("[WebSocket] User " + user.getName() + " joined chatroom (via join message) " + chatroomId);
         }
     }
 }

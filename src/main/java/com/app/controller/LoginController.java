@@ -1,6 +1,5 @@
 package com.app.controller;
 
-import com.app.service.UserService;
 import com.app.session.UserSessionBean;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ public class LoginController {
 
     @GetMapping("/login")
     public String loginPage(HttpSession session, Model model) {
-        System.out.println("Loading login page");
         Boolean showLogoutMessage = (Boolean) session.getAttribute("showLogoutMessage");
         if (Boolean.TRUE.equals(showLogoutMessage)) {
             model.addAttribute("logoutMessage", true);
@@ -30,7 +28,6 @@ public class LoginController {
     public String logoutSuccess(HttpSession session) {
         userSessionBean.setLoggedIn(false);
         session.setAttribute("logoutMessage", true);
-        System.out.println("Logged out successfully SDF");
         return "redirect:/login";
     }
 

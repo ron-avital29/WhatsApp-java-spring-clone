@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Optional;
 
 @Controller
@@ -47,18 +48,15 @@ public class ReportController {
         Message message = messageOpt.get();
         Long chatroomId = message.getChatroom().getId();
 
-        // 1. Check membership in the chatroom
         Chatroom chatroom = message.getChatroom();
         if (!chatroom.getMembers().contains(currentUser)) {
             return "redirect:/chatrooms/" + chatroomId + "/view-chatroom";
         }
 
-        // 2. Don't allow reporting your own message
         if (message.getSender().getId().equals(currentUser.getId())) {
             return "redirect:/chatrooms/" + chatroomId + "/view-chatroom";
         }
 
-        // 3. Prevent duplicate reports
         boolean alreadyReported = reportRepository.existsByReporterAndReportedMessage(currentUser, message);
         if (alreadyReported) {
             return "redirect:/chatrooms/" + chatroomId + "/view-chatroom";

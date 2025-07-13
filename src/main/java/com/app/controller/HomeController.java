@@ -31,7 +31,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String index() {
-        return "index"; // Public landing page
+        return "index";
     }
 
     @GetMapping("/home")
@@ -52,9 +52,8 @@ public class HomeController {
         return "home";
     }
 
-
     @GetMapping("/logout")
     public String confirmLogout() {
-        return "logout-confirm"; // renders logout-confirm.html
+        return "logout-confirm";
     }
 }
