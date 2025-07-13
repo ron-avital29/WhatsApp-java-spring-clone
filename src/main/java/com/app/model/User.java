@@ -5,6 +5,9 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
 import java.time.LocalDateTime;
@@ -20,7 +23,9 @@ import java.util.HashSet;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,14 +73,5 @@ public class User {
 
     public boolean isBanned() {
         return bannedUntil != null && bannedUntil.isAfter(LocalDateTime.now());
-    }
-
-    public String getBanDurationMessage() {
-        if (bannedUntil == null) return "Not banned";
-        long days = java.time.Duration.between(LocalDateTime.now(), bannedUntil).toDays();
-        if (days >= 365 * 80) return "forever";
-        if (days >= 7) return "1 week";
-        if (days >= 1) return "24 hours";
-        return "less than a day";
     }
 }
