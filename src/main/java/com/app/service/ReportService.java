@@ -3,6 +3,7 @@ package com.app.service;
 import com.app.model.*;
 import com.app.repo.ReportRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,7 +14,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReportService {
 
-    private final ReportRepository reportRepository;
+    @Autowired
+    private ReportRepository reportRepository;
 
     @Transactional
     public Optional<Report> submitMessageReport(User reporter, Message message, String reason) {

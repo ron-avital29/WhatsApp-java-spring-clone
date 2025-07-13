@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+/**
+ * Intercepts all requests to enforce login status and ban logic for users.
+ */
 @Component
 public class GlobalInterceptor implements HandlerInterceptor {
 
@@ -18,6 +21,14 @@ public class GlobalInterceptor implements HandlerInterceptor {
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * This method is called before the actual handler is executed.
+     * @param request
+     * @param response
+     * @param handler
+     * @return
+     * @throws Exception
+     */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String path = request.getRequestURI();
@@ -51,6 +62,11 @@ public class GlobalInterceptor implements HandlerInterceptor {
         return true;
     }
 
+    /**
+     * Determines if the requested path is public and does not require authentication.
+     * @param path The request URI.
+     * @return true if the path is public, false otherwise.
+     */
     private boolean isPublicPath(String path) {
         return path.startsWith("/login") ||
         path.startsWith("/oauth2") ||

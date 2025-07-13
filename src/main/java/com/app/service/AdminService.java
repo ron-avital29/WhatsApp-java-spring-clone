@@ -11,6 +11,7 @@ import com.app.repo.MessageRepository;
 import com.app.repo.ReportRepository;
 import com.app.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -23,9 +24,14 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AdminService {
 
-    private final MessageRepository messageRepository;
-    private final ReportRepository reportRepository;
-    private final UserRepository userRepository;
+    @Autowired
+    private MessageRepository messageRepository;
+
+    @Autowired
+    private ReportRepository reportRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public void cleanupExpiredBans() {
         LocalDateTime now = LocalDateTime.now();
