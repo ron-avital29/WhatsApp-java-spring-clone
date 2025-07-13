@@ -13,16 +13,22 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- Left links -->
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
+
+                <!-- USER NAV -->
+                <li class="nav-item" sec:authorize="hasRole('USER')">
                     <a class="nav-link text-light" href="/home">Home</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" sec:authorize="hasRole('USER')">
                     <a class="nav-link text-light" href="/chatrooms">My Chats</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" sec:authorize="hasRole('USER')">
                     <a class="nav-link text-light" href="/chatrooms/getCommunities">Discover Communities</a>
+                </li>
+
+                <!-- ADMIN NAV -->
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link text-light" href="/home">Home</a>
                 </li>
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                     <a class="nav-link text-warning fw-bold" href="/admin/panel">Admin Panel</a>
@@ -32,8 +38,8 @@
                 </li>
             </ul>
 
-            <!-- Search -->
-            <form class="d-flex me-3" action="/search" method="get" role="search">
+            <!-- Search (only for regular users) -->
+            <form class="d-flex me-3" action="/search" method="get" role="search" sec:authorize="hasRole('USER')">
                 <input class="form-control form-control-sm me-2" type="search" name="query"
                        placeholder="Search Users or Messages" aria-label="Search" required
                        style="background-color: #f0f0f0; border-color: var(--border); color: #000;">
