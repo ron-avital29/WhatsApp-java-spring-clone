@@ -79,6 +79,4 @@ public class User {
         return "less than a day";
     }
 
-
-
 }

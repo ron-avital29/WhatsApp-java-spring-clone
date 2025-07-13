@@ -68,6 +68,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         }
 
         userSessionBean.setLoggedIn(true);
+        userSessionBean.setUser(user);
 
         return new DefaultOAuth2User(
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole())),

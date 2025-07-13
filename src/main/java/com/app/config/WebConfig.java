@@ -15,16 +15,17 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private AdminAccessInterceptor adminAccessInterceptor;
 
+    @Autowired
+    private GlobalInterceptor globalInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new GlobalInterceptor(userSessionBean))
+        registry.addInterceptor(globalInterceptor)
                 .addPathPatterns("/**");
 
         registry.addInterceptor(adminAccessInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns(
-                        "/css/**", "/js/**", "/img/**",
-                        "/oauth2/**", "/error" // static and auth endpoints
-                );
+                .excludePathPatterns("/css/**", "/js/**", "/img/**", "/oauth2/**", "/error");
     }
 }
+
