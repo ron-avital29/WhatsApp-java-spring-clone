@@ -13,10 +13,9 @@ import java.util.Set;
 public class AdminAccessInterceptor implements HandlerInterceptor {
     private final CurrentUserService currentUserService;
 
-    // Pages that admin IS allowed to access
     private static final Set<String> ALLOWED_PATHS_FOR_ADMIN = Set.of(
-            "/admin",                    // All admin paths (covers /admin/panel, /admin/ban-user, etc.)
-            "/reports",                  // Reports directory
+            "/admin",
+            "/reports",
             "/home",
             "/logout",
             "/logout-confirm",
@@ -38,7 +37,7 @@ public class AdminAccessInterceptor implements HandlerInterceptor {
             boolean allowed = ALLOWED_PATHS_FOR_ADMIN.stream().anyMatch(path::startsWith);
 
             if (!allowed) {
-                System.out.println("AdminAccessInterceptor: Blocking access to " + path); // Debug logging
+                System.out.println("AdminAccessInterceptor: Blocking access to " + path);
                 response.sendRedirect("/home");
                 return false;
             }
@@ -47,3 +46,4 @@ public class AdminAccessInterceptor implements HandlerInterceptor {
         return true;
     }
 }
+// begin cleanup
