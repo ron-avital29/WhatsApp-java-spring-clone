@@ -5,4 +5,3 @@ public interface UserProjection {
     String getUsername();
     String getEmail();
 }
-
