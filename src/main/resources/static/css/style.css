@@ -376,8 +376,25 @@ body {
     min-height: 1.2em;
 }
 
-/* login page */
+/*search box results*/
+.scroll-box {
+    max-height: 26rem;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+}
 
+body.background-wallpaper::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url("/img/login-side.png") no-repeat center center;
+    background-size: cover;
+    opacity: 0.7;
+    z-index: -1;
+}
+
+/* login page */
 .login-wrapper {
     flex: 1;
     display: flex;

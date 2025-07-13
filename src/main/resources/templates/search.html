@@ -6,7 +6,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-dark text-light d-flex flex-column min-vh-100">
+<body class="bg-dark text-light d-flex flex-column min-vh-100 background-wallpaper">
 
 <!-- Navbar -->
 <nav th:replace="~{fragments/navbar.html :: navbar}"></nav>
@@ -22,7 +22,7 @@
         <div th:if="${#lists.isEmpty(messages)}">
             <p>No messages found.</p>
         </div>
-        <ul class="list-group mb-5" th:if="${!#lists.isEmpty(messages)}">
+        <ul class="list-group mb-5 scroll-box" th:if="${!#lists.isEmpty(messages)}">
             <li class="list-group-item" th:each="msg : ${messages}">
                 <div>
                     <strong th:text="${msg.sender.username}">Username</strong>
@@ -57,7 +57,7 @@
         <div th:if="${#lists.isEmpty(users)}">
             <p>No users found.</p>
         </div>
-        <ul class="list-group" th:if="${!#lists.isEmpty(users)}">
+        <ul class="list-group scroll-box" th:if="${!#lists.isEmpty(users)}">
             <li class="list-group-item d-flex justify-content-between align-items-center"
                 th:each="user : ${users}">
                 <span th:text="${user.username}">username</span>
