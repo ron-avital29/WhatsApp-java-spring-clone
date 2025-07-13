@@ -21,7 +21,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(globalInterceptor)
-                .addPathPatterns("/**");
+                .addPathPatterns("/**")
+                .excludePathPatterns("/css/**", "/js/**", "/img/**", "/oauth2/**", "/error"); // ✅ Add this
 
         registry.addInterceptor(adminAccessInterceptor)
                 .addPathPatterns("/**")
