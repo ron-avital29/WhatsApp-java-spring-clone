@@ -135,7 +135,10 @@
 
 <div class="chatbox-main">
     <div class="chat-toolbar">
-        <span class="chat-toolbar-title" th:text="${chatroomName}">Chatroom Name</span>
+        <div>
+            <span class="chat-toolbar-title" th:text="${chatroomName}">Chatroom Name</span><br />
+            <small class="text-light fst-italic" th:text="${chatroomType}">Chatroom Type</small>
+        </div>
         <div>
             <a href="/chatrooms" class="btn btn-outline-light btn-sm">Back</a>
             <a th:href="@{/chatrooms/{id}/manage(id=${chatroomId})}" class="btn btn-outline-light btn-sm">Manage</a>

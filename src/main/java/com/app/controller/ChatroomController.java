@@ -169,10 +169,20 @@ public class ChatroomController {
         User user = userRepository.findByEmail(currentUser.getAttribute("email")).orElseThrow();
 
         List<Chatroom> myChats = chatroomService.findMyChatrooms(user.getId());
+
+        // Create a map from Chatroom ID to display name
+        Map<Long, String> displayNames = myChats.stream()
+                .collect(Collectors.toMap(
+                        Chatroom::getId,
+                        chat -> chat.getDisplayName(user)
+                ));
+
         model.addAttribute("chatrooms", myChats);
+        model.addAttribute("displayNames", displayNames);
 
         return "chatrooms";
     }
+
 
     @GetMapping("/discover")
     public String discoverCommunities(Model model) {
@@ -184,6 +194,7 @@ public class ChatroomController {
 
         return "discover";
     }
+
 
     @PostMapping("/join/{chatroomId}")
     public String joinCommunity(@PathVariable Long chatroomId) {
@@ -259,6 +270,10 @@ public class ChatroomController {
         // I think this is not needed, but leaving it here for now; we can access userId in the backend
         model.addAttribute("currentUserId", user.getId());
         model.addAttribute("currentUserName", user.getUsername());
+
+        model.addAttribute("chatroomName", chatroom.getDisplayName(user));
+        model.addAttribute("chatroomType", chatroom.getType().toString());
+
 
         List<Report> myReports = reportRepository.findAllByReporter(user); // not all users
         Set<Long> reportedByMe = myReports.stream()

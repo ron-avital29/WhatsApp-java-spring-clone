@@ -51,4 +51,18 @@ public class Chatroom {
     public int getNumOfMembers() {
         return members.size();
     }
+
+    @Transient
+    public String getDisplayName(User currentUser) {
+        if (type == ChatroomType.PRIVATE && name.contains(" & ")) {
+            String[] names = name.split(" & ");
+            for (String n : names) {
+                if (!n.equalsIgnoreCase(currentUser.getUsername())) {
+                    return n;
+                }
+            }
+        }
+        return name;
+    }
+
 }
