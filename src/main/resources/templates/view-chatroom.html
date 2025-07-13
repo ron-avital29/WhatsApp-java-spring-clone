@@ -9,120 +9,6 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-
-    <style>
-        body {
-            background: #121212;
-            color: #f1f8e9;
-        }
-        .chatbox-main {
-            max-width: 720px;
-            margin: 2rem auto;
-            background: #1e1e1e;
-            border-radius: 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            height: 80vh;
-        }
-        .chat-toolbar {
-            padding: 1rem 1.25rem;
-            background: #2e7d32;
-            color: #f1f8e9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .chat-toolbar-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-        .chat-toolbar-users {
-            background: #1b5e20;
-            color: #a5d6a7;
-        }
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1.5rem;
-            background: #1a1a1a;
-        }
-        .chat-message-row {
-            display: flex;
-            align-items: flex-end;
-            margin-bottom: 1.3rem;
-        }
-        .chat-message-row.me {
-            flex-direction: row-reverse;
-        }
-        .chat-avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            margin: 0 0.75rem;
-            object-fit: cover;
-        }
-        .chat-bubble {
-            background: #2c2c2c;
-            color: #f1f8e9;
-            padding: 0.85rem 1.15rem;
-            border-radius: 1rem;
-            max-width: 100%;
-        }
-        .chat-message-row.me .chat-bubble {
-            background: #388e3c;
-            color: #fff;
-        }
-        .sender-name {
-            font-weight: bold;
-            color: #a5d6a7;
-            margin-bottom: 0.25rem;
-            display: block;
-        }
-        .chat-meta {
-            font-size: 0.75rem;
-            color: #999;
-            margin-top: 0.3rem;
-            text-align: right;
-        }
-        .chat-input-area {
-            border-top: 1px solid #333;
-            background: #1e1e1e;
-            padding: 0.75rem 1.25rem;
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        .chat-input-area input[type="text"] {
-            flex: 1;
-            padding: 0.6rem 1rem;
-            border-radius: 1rem;
-            border: 1px solid #444;
-            background: #121212;
-            color: #f1f8e9;
-        }
-        .file-label {
-            margin-right: 0.5rem;
-            cursor: pointer;
-        }
-        .image-preview {
-            max-width: 100px;
-            max-height: 100px;
-            margin-top: 0.5rem;
-        }
-        .chat-toolbar {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background: #2e7d32;
-            padding: 1rem 1.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: #f1f8e9;
-        }
-
-    </style>
 </head>
 <body>
 
@@ -131,7 +17,6 @@
 <div id="app-data"
      th:attr="data-current-user-id=${currentUserId}, data-current-user-name='${currentUserName}', data-chatroom-id=${chatroomId}">
 </div>
-
 
 <div class="chatbox-main">
     <div class="chat-toolbar">
@@ -242,7 +127,6 @@
         stompClient = Stomp.over(socket);
 
         stompClient.connect({}, function () {
-            // Subscribe to chat messages and presence for the chatroom
             stompClient.subscribe(`/topic/messages/${chatroomId}`, function (messageOutput) {
                 const msg = JSON.parse(messageOutput.body);
                 showMessage(msg);
@@ -255,7 +139,6 @@
                 console.log("Presence update:", presence);
             });
 
-            // Send a custom "join" message to inform the server about the chatroom
             stompClient.send("/app/join", {}, JSON.stringify({ chatroomId: chatroomId }));
 
             fetchOnlineUsers();
@@ -281,7 +164,6 @@
         setTimeout(() => alertBox.remove(), 8000);
     }
 
-    // check if this can be moved to the backend (probably not)
     function fetchOnlineUsers() {
         fetch('/presence/online/chatroom/' + chatroomId)
             .then(response => response.json())
@@ -337,8 +219,6 @@
     async function uploadFile(file) {
         fileUploading = true;
         disableSendButton(true);
-
-        // Show spinner
         document.getElementById('uploadSpinner').classList.remove('d-none');
 
         const formData = new FormData();
@@ -354,12 +234,11 @@
                 throw new Error("File upload failed");
             }
 
-            return await response.json(); // returns { fileId, filename }
+            return await response.json();
 
         } finally {
             fileUploading = false;
             disableSendButton(false);
-            // Hide spinner
             document.getElementById('uploadSpinner').classList.add('d-none');
         }
     }

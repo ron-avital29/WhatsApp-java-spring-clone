@@ -5,50 +5,17 @@
     <title>Search Results - WhatsApp SN</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        body {
-            background: #121212;
-            color: #f1f8e9;
-        }
-        h2 {
-            font-weight: 600;
-            color: #ffffff;
-        }
-        .result-container {
-            background: #1e1e1e;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            margin-bottom: 2rem;
-        }
-        .list-group-item {
-            background-color: #2c2c2c;
-            color: #f1f8e9;
-            border: 1px solid #333;
-        }
-        .list-group-item:hover {
-            background-color: #2e7d32;
-            color: #fff;
-        }
-        p {
-            color: #bbb;
-        }
-        .section-title {
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-            color: #90caf9;
-        }
-    </style>
 </head>
-<body>
+<body class="dark-theme">
 
 <!-- Navbar -->
 <nav th:replace="~{fragments/navbar.html :: navbar}"></nav>
 
 <div class="container my-5">
     <div class="result-container">
-        <h2 class="mb-4">Search Results for "<span th:text="${query}"></span>"</h2>
+        <h2 class="page-heading mb-4">
+            Search Results for "<span th:text="${query}"></span>"
+        </h2>
 
         <!-- Messages Section -->
         <h3 class="section-title">Messages</h3>
@@ -59,9 +26,11 @@
             <li class="list-group-item" th:each="msg : ${messages}">
                 <div>
                     <strong th:text="${msg.sender.username}">Username</strong>
-                    <span class="text-light" th:text="${#temporals.format(msg.timestamp, 'yyyy-MM-dd HH:mm')}" style="font-size: 0.9em;">[Time]</span>
+                    <span class="text-light" style="font-size: 0.9em;" th:text="${#temporals.format(msg.timestamp, 'yyyy-MM-dd HH:mm')}">[Time]</span>
                 </div>
+
                 <div th:if="${msg.content}" th:text="${msg.content}">Message content</div>
+
                 <div th:if="${msg.file != null}">
                     <div th:if="${msg.file.mimeType != null}">
                         <div th:if="${#strings.startsWith(msg.file.mimeType, 'image/')}">
@@ -71,7 +40,9 @@
                         </div>
                     </div>
                     <a th:href="@{'/files/' + ${msg.file.id} + '/download'}"
-                       th:text="'Download file: ' + ${msg.file.filename}">Download file</a>
+                       th:text="'Download file: ' + ${msg.file.filename}">
+                        Download file
+                    </a>
                 </div>
 
                 <a class="btn btn-sm btn-outline-light mt-2"
@@ -87,7 +58,8 @@
             <p>No users found.</p>
         </div>
         <ul class="list-group" th:if="${!#lists.isEmpty(users)}">
-            <li th:each="user : ${users}" class="list-group-item d-flex justify-content-between align-items-center">
+            <li class="list-group-item d-flex justify-content-between align-items-center"
+                th:each="user : ${users}">
                 <span th:text="${user.username}">username</span>
             </li>
         </ul>

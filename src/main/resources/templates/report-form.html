@@ -1,61 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Report Message</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css">
-    <style>
-        body {
-            background-color: #121212;
-            color: #f1f8e9;
-        }
-        h2 {
-            color: #ffffff;
-            font-weight: 600;
-        }
-        .card {
-            background-color: #1e1e1e;
-            border: none;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        .card-body {
-            color: #e0f2f1;
-        }
-        .form-label {
-            color: #a5d6a7;
-        }
-        .form-control {
-            background-color: #2c2c2c;
-            color: #f1f8e9;
-            border: 1px solid #444;
-        }
-        .form-control:focus {
-            background-color: #2c2c2c;
-            color: #fff;
-            border-color: #66bb6a;
-        }
-        .btn-secondary {
-            background-color: #424242;
-            border-color: #424242;
-            color: #fff;
-        }
-        .btn-secondary:hover {
-            background-color: #616161;
-            border-color: #616161;
-        }
-        .btn-danger {
-            background-color: #e53935;
-            border-color: #e53935;
-            color: #f1f8e9;
-        }
-
-        .btn-danger:hover {
-            background-color: #d32f2f;
-            border-color: #d32f2f;
-            color: #ffffff;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
 </head>
 
 <body>
@@ -63,10 +12,10 @@
 <div th:replace="fragments/navbar :: navbar"></div>
 
 <div class="container mt-5">
-    <h2>Report Message</h2>
+    <h2 class="report-message-heading">Report Message</h2>
 
-    <div class="card mb-4">
-        <div class="card-body">
+    <div class="card report-card mb-4">
+        <div class="card-body report-card-body">
             <strong>Message:</strong>
             <p th:text="${message.content}">Message content here</p>
         </div>
@@ -74,8 +23,8 @@
 
     <form th:action="@{'/reports/message/' + ${message.id}}" method="post">
         <div class="mb-3">
-            <label for="reason" class="form-label">Reason for reporting</label>
-            <textarea class="form-control" id="reason" name="reason" rows="4" required></textarea>
+            <label for="reason" class="form-label report-form-label">Reason for reporting</label>
+            <textarea class="form-control report-form-control" id="reason" name="reason" rows="4" required></textarea>
         </div>
         <button type="submit" class="btn btn-danger me-2">Submit Report</button>
         <a th:href="@{'/chatrooms/' + ${message.chatroom.id} + '/view-chatroom'}" class="btn btn-secondary">Cancel</a>
