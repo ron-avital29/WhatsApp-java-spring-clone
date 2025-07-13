@@ -1,7 +1,9 @@
 package com.app.controller;
 
+import com.app.model.BroadcastMessage;
 import com.app.model.Chatroom;
 import com.app.repo.ChatroomRepository;
+import com.app.service.BroadcastService;
 import com.app.service.CurrentUserService;
 import com.app.session.UserSessionBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class HomeController {
     @Autowired
     private ChatroomRepository chatroomRepository;
 
+    @Autowired
+    private BroadcastService broadcastService;
+
     @GetMapping("/")
     public String index() {
         return "index"; // Public landing page
@@ -36,11 +41,17 @@ public class HomeController {
             model.addAttribute("name", user.getAttribute("name"));
             model.addAttribute("email", user.getAttribute("email"));
         }
+
         List<Long> recentIds = userSession.getRecentChatrooms();
         List<Chatroom> recentChatrooms = chatroomRepository.findAllById(recentIds);
         model.addAttribute("recentChatrooms", recentChatrooms);
+
+        List<BroadcastMessage> broadcasts = broadcastService.getActiveMessages();
+        model.addAttribute("broadcasts", broadcasts);
+
         return "home";
     }
+
 
     @GetMapping("/logout")
     public String confirmLogout() {

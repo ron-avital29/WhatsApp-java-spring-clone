@@ -21,7 +21,8 @@ public class AdminAccessInterceptor implements HandlerInterceptor {
             "/logout",
             "/logout-confirm",
             "/error",
-            "/files"
+            "/files",
+            "/api/broadcasts"
     );
 
     public AdminAccessInterceptor(CurrentUserService currentUserService) {

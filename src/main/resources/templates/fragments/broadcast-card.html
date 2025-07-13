@@ -1,0 +1,24 @@
+<!-- fragments/broadcast-card.html -->
+<div class="card h-100 bg-secondary-subtle text-dark border-0 shadow-sm" th:fragment="card(broadcasts)">
+    <div class="card-body overflow-auto">
+        <h4 class="card-title mb-4">Broadcast Messages</h4>
+
+        <div th:if="${#lists.isEmpty(broadcasts)}" class="text-muted">
+            No active broadcasts at the moment.
+        </div>
+
+        <div class="list-group" th:unless="${#lists.isEmpty(broadcasts)}">
+            <div th:each="msg : ${broadcasts}"
+                 class="list-group-item d-flex flex-column border-bottom bg-light-subtle text-dark mb-2">
+                <div>
+                    <strong th:text="${msg.admin.username}">Admin Name</strong>
+                    <span class="small text-muted float-end"
+                          th:text="'Expires at: ' + ${#temporals.format(msg.expiresAt, 'HH:mm dd/MM/yyyy')}">
+                        23:00 13/07/2025
+                    </span>
+                </div>
+                <div th:text="${msg.content}" class="mt-1"></div>
+            </div>
+        </div>
+    </div>
+</div>
