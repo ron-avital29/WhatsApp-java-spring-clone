@@ -43,7 +43,10 @@ public class WebSocketEventListener {
             String userId = user.getName();
             String sessionId = accessor.getSessionId();
 
-            chatroomUsers.computeIfAbsent(chatroomId, k -> ConcurrentHashMap.newKeySet()).add(userId);
+            synchronized (chatroomUsers) {
+                chatroomUsers.computeIfAbsent(chatroomId, k -> ConcurrentHashMap.newKeySet()).add(userId);
+            }
+
             sessionChatroomMap.put(sessionId, chatroomId);
 
             String username = userService.getDisplayNameByGoogleId(userId);
@@ -61,12 +64,14 @@ public class WebSocketEventListener {
 
         if (user != null && chatroomId != null) {
             String userId = user.getName();
-            Set<String> users = chatroomUsers.get(chatroomId);
 
-            if (users != null) {
-                users.remove(userId);
-                if (users.isEmpty()) {
-                    chatroomUsers.remove(chatroomId);
+            synchronized (chatroomUsers) {
+                Set<String> users = chatroomUsers.get(chatroomId);
+                if (users != null) {
+                    users.remove(userId);
+                    if (users.isEmpty()) {
+                        chatroomUsers.remove(chatroomId);
+                    }
                 }
             }
 
@@ -81,7 +86,9 @@ public class WebSocketEventListener {
     }
 
     public void addUserToChatroom(String userId, Long chatroomId, String sessionId) {
-        chatroomUsers.computeIfAbsent(chatroomId, k -> ConcurrentHashMap.newKeySet()).add(userId);
+        synchronized (chatroomUsers) {
+            chatroomUsers.computeIfAbsent(chatroomId, k -> ConcurrentHashMap.newKeySet()).add(userId);
+        }
         sessionChatroomMap.put(sessionId, chatroomId);
 
         String username = userService.getDisplayNameByGoogleId(userId);

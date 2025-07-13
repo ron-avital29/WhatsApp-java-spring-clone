@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +16,9 @@ import java.util.Set;
 @Table(name = "chatrooms")
 @Getter
 @Setter
-public class Chatroom {
+public class Chatroom implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,11 +49,6 @@ public class Chatroom {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> members = new HashSet<>();
-
-    @Transient
-    public int getNumOfMembers() {
-        return members.size();
-    }
 
     @Transient
     public String getDisplayName(User currentUser) {

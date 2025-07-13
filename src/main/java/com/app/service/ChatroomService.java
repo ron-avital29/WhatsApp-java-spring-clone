@@ -40,7 +40,7 @@ public class ChatroomService {
         return chatroomRepository.findById(chatroomId);
     }
 
-    public void joinCommunity(Long chatroomId, Long userId) {
+    public synchronized void joinCommunity(Long chatroomId, Long userId) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow();
         User user = userRepository.findById(userId).orElseThrow();
 
@@ -59,7 +59,7 @@ public class ChatroomService {
         return List.copyOf(chatroom.getMembers());
     }
 
-    public Chatroom editChatroomName(Long chatroomId, Long userId, String newName) {
+    public synchronized Chatroom editChatroomName(Long chatroomId, Long userId, String newName) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow();
         User user = userRepository.findById(userId).orElseThrow();
 
@@ -80,7 +80,7 @@ public class ChatroomService {
         return chatroom;
     }
 
-    public void leaveChatroom(Long chatroomId, Long userId) {
+    public synchronized void leaveChatroom(Long chatroomId, Long userId) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow();
         User user = userRepository.findById(userId).orElseThrow();
 
@@ -97,7 +97,7 @@ public class ChatroomService {
     }
 
     @Transactional
-    public void addUserToGroup(Long chatroomId, Long userId) {
+    public synchronized void addUserToGroup(Long chatroomId, Long userId) {
         Chatroom chatroom = chatroomRepository.findById(chatroomId).orElseThrow();
         User user = userRepository.findById(userId).orElseThrow();
 
@@ -116,7 +116,7 @@ public class ChatroomService {
     }
 
     @Transactional
-    public Chatroom createGroup(String name, boolean editableName, User creator) {
+    public synchronized Chatroom createGroup(String name, boolean editableName, User creator) {
         Chatroom chatroom = new Chatroom();
         chatroom.setName(name);
         chatroom.setType(ChatroomType.GROUP);
@@ -148,7 +148,7 @@ public class ChatroomService {
         return user;
     }
 
-    public Chatroom createCommunity(String name, User user) {
+    public synchronized Chatroom createCommunity(String name, User user) {
         Chatroom chatroom = new Chatroom();
         chatroom.setName(name);
         chatroom.setType(ChatroomType.COMMUNITY);
@@ -159,7 +159,7 @@ public class ChatroomService {
         return chatroomRepository.save(chatroom);
     }
 
-    public Chatroom findOrCreatePrivateChat(Long myId, long otherId) {
+    public synchronized Chatroom findOrCreatePrivateChat(Long myId, long otherId) {
         User myUser = userRepository.findById(myId).orElseThrow();
         User otherUser = userRepository.findById(otherId).orElseThrow();
 
@@ -187,5 +187,4 @@ public class ChatroomService {
         }
         return chatroomRepository.searchCommunities(query, userId);
     }
-
 }

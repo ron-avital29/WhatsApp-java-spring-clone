@@ -28,7 +28,7 @@ public class UserSessionBean {
         loggedIn = false;
     }
 
-    public void visitChatroom(Long chatroomId) {
+    public synchronized void visitChatroom(Long chatroomId) {
         recentChatrooms.remove(chatroomId);
         recentChatrooms.addFirst(chatroomId);
         if (recentChatrooms.size() > 10) {
@@ -36,7 +36,7 @@ public class UserSessionBean {
         }
     }
 
-    public List<Long> getRecentChatrooms() {
+    public synchronized List<Long> getRecentChatrooms() {
         return new ArrayList<>(recentChatrooms);
     }
 }

@@ -26,7 +26,7 @@ public class BroadcastService {
         return repository.findByAdminAndExpiresAtAfter(admin, LocalDateTime.now());
     }
 
-    public BroadcastMessage create(User admin, String content, LocalDateTime expiresAt) {
+    public synchronized BroadcastMessage create(User admin, String content, LocalDateTime expiresAt) {
         BroadcastMessage msg = BroadcastMessage.builder()
                 .admin(admin)
                 .content(content)
@@ -37,21 +37,15 @@ public class BroadcastService {
     }
 
     @Transactional
-    public void updateContent(User admin, Long id, String newContent) {
+    public synchronized void updateContent(User admin, Long id, String newContent) {
         repository.findById(id).filter(msg ->
                 msg.getAdmin().equals(admin) && !msg.isExpired()
-        ).map(msg -> {
-            msg.setContent(newContent);
-            return msg;
-        });
+        ).ifPresent(msg -> msg.setContent(newContent));
     }
 
-    public void delete(User admin, Long id) {
+    public synchronized void delete(User admin, Long id) {
         repository.findById(id).filter(msg ->
                 msg.getAdmin().equals(admin) && !msg.isExpired()
-        ).map(msg -> {
-            repository.delete(msg);
-            return true;
-        });
+        ).ifPresent(repository::delete);
     }
 }

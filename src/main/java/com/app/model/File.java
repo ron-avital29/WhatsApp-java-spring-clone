@@ -4,11 +4,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "files")
-public class File {
+public class File implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
