@@ -1,28 +1,46 @@
 <div th:fragment="addMembers(searchTitle, query, users, searchAction, btnAction, btnTitle)" class="container my-5">
     <hr class="text-secondary">
-    <h4 class="mt-4 text-light" th:text="${searchTitle}"></h4>
-    <form class="mb-4" th:action="@{${searchAction}}" method="get">
-        <div class="input-group">
-            <input type="text" name="query" class="form-control bg-dark text-light border-secondary" placeholder="Search users..."
+
+    <h4 class="mt-4 text-light" th:text="${searchTitle}">Search Title</h4>
+
+    <!-- Search Form -->
+    <form th:action="@{${searchAction}}" method="get" class="mb-4">
+        <div class="d-flex">
+            <input type="text" name="query"
+                   class="form-control bg-dark text-light border-secondary me-2"
+                   placeholder="Search users..."
                    th:value="${query}">
             <button type="submit" class="btn btn-outline-light">Search</button>
         </div>
     </form>
 
-    <div th:if="${!#lists.isEmpty(users)}">
-        <h4 class="text-light">Found users:</h4>
-        <table class="table table-dark table-hover table-bordered align-middle">
-            <tbody>
-            <tr th:each="user : ${users}">
-                <td th:text="${user.username}"></td>
-                <td th:text="${user.email}"></td>
-                <td>
-                    <form th:action="@{${btnAction} + ${user.id}}" method="post">
-                        <button type="submit" class="btn btn-success btn-sm" th:text="${btnTitle}"></button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <!-- Results Table -->
+    <div th:if="${!#lists.isEmpty(users)}" class="mt-4">
+        <h5 class="text-light mb-3">Found Users</h5>
+        <div class="table-responsive">
+            <table class="table table-dark table-bordered table-hover align-middle shadow-sm">
+                <thead>
+                <tr>
+                    <th class="text-light">Username</th>
+                    <th class="text-light text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.username}">Username</td>
+                    <td class="text-center">
+                        <form th:action="@{${btnAction} + ${user.id}}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-success btn-sm" th:text="${btnTitle}">Action</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- No Users Found -->
+    <div th:if="${#lists.isEmpty(users)}" class="text-muted mt-3">
+        <p>No users found.</p>
     </div>
 </div>

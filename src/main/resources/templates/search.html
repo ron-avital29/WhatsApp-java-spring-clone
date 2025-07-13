@@ -63,9 +63,17 @@
                 </div>
                 <div th:if="${msg.content}" th:text="${msg.content}">Message content</div>
                 <div th:if="${msg.file != null}">
-                    <a th:href="@{'/chatrooms/files/' + ${msg.file.id} + '/download'}"
+                    <div th:if="${msg.file.mimeType != null}">
+                        <div th:if="${#strings.startsWith(msg.file.mimeType, 'image/')}">
+                            <img class="img-thumbnail mt-2"
+                                 th:src="@{'/files/' + ${msg.file.id} + '/download'}"
+                                 style="max-width: 150px; max-height: 150px;" />
+                        </div>
+                    </div>
+                    <a th:href="@{'/files/' + ${msg.file.id} + '/download'}"
                        th:text="'Download file: ' + ${msg.file.filename}">Download file</a>
                 </div>
+
                 <a class="btn btn-sm btn-outline-light mt-2"
                    th:href="@{'/chatrooms/' + ${msg.chatroom.id} + '/view-chatroom'}">
                     Go to Chat

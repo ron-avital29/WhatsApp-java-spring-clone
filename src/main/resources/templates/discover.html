@@ -18,7 +18,7 @@
         <h5 class="text-dark">Find a Community</h5>
         <form th:action="@{/chatrooms/search-community}" method="get" class="mt-3">
             <div class="input-group">
-                <input type="text" name="query" class="form-control" placeholder="Search communities..."
+                <input type="text" name="query" class="form-control" required placeholder="Search communities..."
                        th:value="${query}">
                 <button type="submit" class="btn btn-outline-success">Search</button>
             </div>
