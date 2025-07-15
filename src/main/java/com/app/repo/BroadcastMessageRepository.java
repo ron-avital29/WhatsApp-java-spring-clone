@@ -8,6 +8,10 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Repository interface for managing BroadcastMessage entities.
+ * Provides methods to find active broadcast messages and those by a specific admin.
+ */
 @Repository
 public interface BroadcastMessageRepository extends JpaRepository<BroadcastMessage, Long> {
     List<BroadcastMessage> findByExpiresAtAfter(LocalDateTime now);

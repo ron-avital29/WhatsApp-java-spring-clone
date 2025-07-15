@@ -9,6 +9,11 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Message represents a chat message in the application.
+ * It contains the message content, timestamp, sender, associated chatroom,
+ * optional file attachment, and reports related to the message.
+ */
 @Entity
 @Data
 @NoArgsConstructor
@@ -42,6 +47,9 @@ public class Message implements Serializable {
     @OneToMany(mappedBy = "reportedMessage", cascade = CascadeType.ALL)
     private List<Report> reports;
 
+    /**
+     * returns the name of the sender of the message.
+     */
     public String getSenderName() {
         return sender != null ? sender.getUsername() : "Unknown";
     }

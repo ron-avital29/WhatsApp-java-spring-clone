@@ -10,6 +10,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * UserRepository provides methods to access and manipulate User data in the database.
+ * It extends JpaRepository to leverage Spring Data JPA features.
+ */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 

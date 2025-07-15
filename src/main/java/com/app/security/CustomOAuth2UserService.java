@@ -8,7 +8,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -21,21 +20,47 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * CustomOAuth2UserService handles the loading of user details from OAuth2 providers.
+ * It checks if the user exists in the database, creates a new user if not,
+ * and sets the user session attributes.
+ */
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
+    /**
+     * Repository to access user data.
+     */
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * Password encoder to encode user passwords.
+     */
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    /**
+     * Session bean to manage user session data.
+     */
     @Autowired
     private UserSessionBean userSessionBean;
 
+    /**
+     * HTTP request to access session attributes.
+     */
     @Autowired
     private HttpServletRequest request;
 
+    /**
+     * Loads user details from the OAuth2 provider.
+     * If the user does not exist, creates a new user with the provided details.
+     * Sets the user session attributes and checks if the user is banned.
+     *
+     * @param oauthRequest the OAuth2 user request
+     * @return an OAuth2User with the user's details
+     * @throws OAuth2AuthenticationException if there is an error during authentication
+     */
     @Override
     @Transactional
     public OAuth2User loadUser(OAuth2UserRequest oauthRequest) throws OAuth2AuthenticationException {

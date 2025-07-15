@@ -12,6 +12,11 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Represents a chatroom in the application.
+ * A chatroom can be of different types: PRIVATE, GROUP, or COMMUNITY.
+ * It contains information about the chatroom's name, type, members, and creator.
+ */
 @Entity
 @Table(name = "chatrooms")
 @Getter
@@ -50,6 +55,11 @@ public class Chatroom implements Serializable {
     )
     private Set<User> members = new HashSet<>();
 
+    /**
+     * Adds a member to the chatroom.
+     *
+     * @param currentUser the user to be added as a member
+     */
     @Transient
     public String getDisplayName(User currentUser) {
         if (type == ChatroomType.PRIVATE && name.contains(" & ")) {

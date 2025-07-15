@@ -9,6 +9,10 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
+/**
+ * MessageRepository provides methods to access and manipulate message data in the database.
+ * It extends JpaRepository to leverage built-in CRUD operations and custom query methods.
+ */
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
 

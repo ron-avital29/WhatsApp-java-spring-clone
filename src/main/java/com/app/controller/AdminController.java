@@ -2,8 +2,6 @@ package com.app.controller;
 
 import com.app.dto.BannedUserDTO;
 import com.app.dto.MessageReportDTO;
-import com.app.model.Message;
-import com.app.model.User;
 import com.app.repo.UserRepository;
 import com.app.service.AdminService;
 import com.app.service.UserService;
@@ -11,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,12 +21,21 @@ import java.util.stream.Collectors;
 @RequestMapping("/admin")
 public class AdminController {
 
+    /**
+     * Service to handle administrative operations.
+     */
     @Autowired
     private AdminService adminService;
 
+    /**
+     * Service to handle user-related operations.
+     */
     @Autowired
     private UserService userService;
 
+    /**
+     * Repository to access user data.
+     */
     @Autowired
     private UserRepository userRepository;
 

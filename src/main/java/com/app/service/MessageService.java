@@ -15,21 +15,50 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+/**
+ * MessageService handles operations related to sending messages in chatrooms.
+ * It interacts with repositories to save messages and retrieve necessary entities.
+ */
 @Service
 public class MessageService {
 
+    /**
+     * Repositories for accessing message and user data.
+     * These are injected by Spring's dependency injection mechanism.
+     */
     @Autowired
     private MessageRepository messageRepository;
 
+    /**
+     * Repository for accessing user data.
+     */
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * Service for managing chatrooms.
+     * It is used to retrieve chatroom details when sending messages.
+     */
     @Autowired
     private ChatroomService chatroomService;
 
+    /**
+     * Service for handling file operations.
+     * It is used to retrieve file details when sending messages with attachments.
+     */
     @Autowired
     private FileService fileService;
 
+    /**
+     * Sends a message to a chatroom.
+     * It creates a new Message object, sets its properties, and saves it to the repository.
+     *
+     * @param content  the content of the message
+     * @param chatroom the chatroom where the message will be sent
+     * @param sender   the user sending the message
+     * @param file     an optional file attached to the message
+     * @return the saved Message object
+     */
     public Message sendMessageToChatroom(String content, Chatroom chatroom, User sender, File file) {
         Message message = new Message();
         message.setContent(content);
@@ -40,6 +69,14 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
+    /**
+     * Sends a chat message based on the provided ChatMessageDTO.
+     * It retrieves the chatroom and sender user, checks for file attachment,
+     * and saves the message to the repository.
+     *
+     * @param dto the ChatMessageDTO containing message details
+     * @return the updated ChatMessageDTO with message ID and other details
+     */
     public ChatMessageDTO sendChatMessage(ChatMessageDTO dto) {
         Chatroom chatroom = chatroomService.findById(dto.getChatroomId())
                 .orElseThrow(() -> new ResourceNotFoundException("Chatroom not found"));

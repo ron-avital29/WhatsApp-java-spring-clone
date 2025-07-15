@@ -12,12 +12,21 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    /**
+     * Session bean to manage user login state.
+     */
     @Autowired
     private UserSessionBean userSessionBean;
 
+    /**
+     * Interceptor to enforce admin access restrictions.
+     */
     @Autowired
     private AdminAccessInterceptor adminAccessInterceptor;
 
+    /**
+     * Global interceptor to handle login status and ban logic for users.
+     */
     @Autowired
     private GlobalInterceptor globalInterceptor;
 

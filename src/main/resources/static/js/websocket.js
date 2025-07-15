@@ -29,22 +29,6 @@ function connect() {
     });
 }
 
-// function showPresenceNotification(presence) {
-//     const currentUserName = document.getElementById('app-data').dataset.currentUserName;
-//     const user = presence.username;
-//     const type = presence.type;
-//
-//     if (user === currentUserName) return;
-//
-//     const alertBox = document.createElement("div");
-//     alertBox.className = "alert alert-info text-center py-2";
-//     alertBox.textContent = `${user} has ${type === 'JOIN' ? 'joined' : 'left'} the chat`;
-//
-//     const chatBox = document.getElementById("chatBox");
-//     chatBox.appendChild(alertBox);
-//     setTimeout(() => alertBox.remove(), 8000);
-// }
-
 function showPresenceNotification(presence) {
     const currentUserName = document.getElementById("app-data").dataset.currentUserName;
     const user = presence.username;

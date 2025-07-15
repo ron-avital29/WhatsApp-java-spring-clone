@@ -8,6 +8,11 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * Represents a report in the application.
+ * Contains details about the reporter, reported user or message,
+ * reason for the report, status, and timestamps.
+ */
 @Entity
 @Table(
         name = "reports",

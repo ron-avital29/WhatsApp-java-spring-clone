@@ -20,9 +20,15 @@ import java.time.LocalDateTime;
 @RequestMapping("/admin/broadcast")
 public class BroadcastController {
 
+    /**
+     * Service to handle broadcast operations.
+     */
     @Autowired
     private BroadcastService broadcastService;
 
+    /**
+     * Service to retrieve the current user session.
+     */
     @Autowired
     private CurrentUserService currentUserService;
 

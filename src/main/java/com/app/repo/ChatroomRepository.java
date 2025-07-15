@@ -12,6 +12,10 @@ import com.app.projection.UserProjection;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * ChatroomRepository provides methods to interact with the Chatroom entity.
+ * It extends JpaRepository to provide basic CRUD operations and custom queries.
+ */
 @Repository
 public interface ChatroomRepository extends JpaRepository<Chatroom, Long> {
 

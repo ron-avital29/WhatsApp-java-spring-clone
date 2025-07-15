@@ -7,6 +7,10 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * BroadcastMessage represents a message sent by an admin to all users.
+ * It contains the content of the message, the admin who sent it, and timestamps for creation and expiration.
+ */
 @Entity
 @Getter
 @Setter
@@ -34,6 +38,11 @@ public class BroadcastMessage implements Serializable {
     @Column(nullable = false)
     private LocalDateTime expiresAt;
 
+    /**
+     * Checks if the broadcast message has expired.
+     *
+     * @return true if the message is expired, false otherwise
+     */
     public boolean isExpired() {
         return expiresAt.isBefore(LocalDateTime.now());
     }

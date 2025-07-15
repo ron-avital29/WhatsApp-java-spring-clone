@@ -14,6 +14,10 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.HashSet;
 
+/**
+ * User represents a user in the application.
+ * It contains details such as username, email, password, role, and associated chatrooms.
+ */
 @Entity
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email"),
@@ -71,6 +75,12 @@ public class User implements Serializable {
     @Column(name = "banned_until")
     private LocalDateTime bannedUntil;
 
+    /**
+     * Checks if the user is currently banned.
+     * A user is considered banned if the bannedUntil date is in the future.
+     *
+     * @return true if the user is banned, false otherwise
+     */
     public boolean isBanned() {
         return bannedUntil != null && bannedUntil.isAfter(LocalDateTime.now());
     }

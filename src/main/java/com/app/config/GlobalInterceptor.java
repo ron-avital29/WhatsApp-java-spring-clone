@@ -15,9 +15,15 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 public class GlobalInterceptor implements HandlerInterceptor {
 
+    /**
+     * Session bean to manage user login state.
+     */
     @Autowired
     private UserSessionBean userSessionBean;
 
+    /**
+     * Repository to access user data.
+     */
     @Autowired
     private UserRepository userRepository;
 

@@ -20,6 +20,9 @@ import java.util.Set;
 @Component
 public class AdminAccessInterceptor implements HandlerInterceptor {
 
+    /**
+     * Service to retrieve the current user session.
+     */
     @Autowired
     private CurrentUserService currentUserService;
 
