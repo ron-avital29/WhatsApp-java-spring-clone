@@ -47,17 +47,21 @@ function showPresenceNotification(presence) {
     setTimeout(() => alertBox.remove(), 8000);
 }
 
-
-
 function fetchOnlineUsers() {
     fetch('/presence/online/chatroom/' + chatroomId)
         .then(res => res.json())
         .then(users => {
             const container = document.getElementById('onlineUsers');
-            container.textContent = users.length ? users.join(', ') : 'No one online';
+
+            if (users.length === 0) {
+                container.textContent = 'You';
+            } else {
+                container.textContent = 'You, ' + users.join(', ');
+            }
         })
         .catch(err => console.error("Failed to load online users", err));
 }
+
 
 function showMessage(msg) {
     const currentUserId = document.getElementById('app-data').dataset.currentUserId;

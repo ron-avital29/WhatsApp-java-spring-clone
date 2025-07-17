@@ -1,6 +1,6 @@
 <div th:fragment="chats(titleText)" class="container my-5">
     <h2 class="mb-4" th:text="${titleText}">My Chats</h2>
-    <div th:if="${#lists.isEmpty(chatrooms)}" class="text-muted">
+    <div th:if="${#lists.isEmpty(chatrooms)}" class="text-white">
         <p>You have no active chats yet.</p>
     </div>
     <div class="list-group" th:if="${!#lists.isEmpty(chatrooms)}">
