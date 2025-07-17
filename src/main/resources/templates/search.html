@@ -7,17 +7,12 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="bg-dark text-light d-flex flex-column min-vh-100 background-wallpaper">
-
-<!-- Navbar -->
 <nav th:replace="~{fragments/navbar.html :: navbar}"></nav>
-
 <div class="container my-5">
     <div class="result-container">
         <h2 class="page-heading mb-4">
             Search Results for "<span th:text="${query}"></span>"
         </h2>
-
-        <!-- Messages Section -->
         <h3 class="section-title">Messages</h3>
         <div th:if="${#lists.isEmpty(messages)}">
             <p>No messages found.</p>
@@ -28,9 +23,7 @@
                     <strong th:text="${msg.sender.username}">Username</strong>
                     <span class="text-light" style="font-size: 0.9em;" th:text="${#temporals.format(msg.timestamp, 'yyyy-MM-dd HH:mm')}">[Time]</span>
                 </div>
-
                 <div th:if="${msg.content}" th:text="${msg.content}">Message content</div>
-
                 <div th:if="${msg.file != null}">
                     <div th:if="${msg.file.mimeType != null}">
                         <div th:if="${#strings.startsWith(msg.file.mimeType, 'image/')}">
@@ -44,15 +37,12 @@
                         Download file
                     </a>
                 </div>
-
                 <a class="btn btn-sm btn-outline-light mt-2"
                    th:href="@{'/chatrooms/' + ${msg.chatroom.id} + '/view-chatroom'}">
                     Go to Chat
                 </a>
             </li>
         </ul>
-
-        <!-- Users Section -->
         <h3 class="section-title">Users</h3>
         <div th:if="${#lists.isEmpty(users)}">
             <p>No users found.</p>
@@ -68,10 +58,7 @@
         </ul>
     </div>
 </div>
-
-<!-- Footer -->
 <footer th:replace="~{fragments/footer.html :: footer}"></footer>
 <div th:insert="~{fragments/scripts.html :: bootstrapScript}"></div>
-
 </body>
 </html>

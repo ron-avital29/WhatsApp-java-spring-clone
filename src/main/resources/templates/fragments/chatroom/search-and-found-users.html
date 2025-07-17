@@ -1,9 +1,6 @@
 <div th:fragment="addMembers(searchTitle, query, users, searchAction, btnAction, btnTitle)" class="container my-5">
     <hr class="text-secondary">
-
     <h4 class="mt-4 text-light" th:text="${searchTitle}">Search Title</h4>
-
-    <!-- Search Form -->
     <form th:action="@{${searchAction}}" method="get" class="mb-4">
         <div class="d-flex">
             <input type="text" name="query"
@@ -13,8 +10,6 @@
             <button type="submit" class="btn btn-outline-light">Search</button>
         </div>
     </form>
-
-    <!-- Results Table -->
     <div th:if="${!#lists.isEmpty(users)}" class="mt-4">
         <h5 class="text-light mb-3">Found Users</h5>
         <div class="table-responsive">
@@ -38,8 +33,6 @@
             </table>
         </div>
     </div>
-
-    <!-- No Users Found -->
     <div th:if="${#lists.isEmpty(users)}" class="text-muted mt-3">
         <p>No users found.</p>
     </div>

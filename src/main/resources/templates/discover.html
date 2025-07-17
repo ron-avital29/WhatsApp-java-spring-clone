@@ -7,13 +7,9 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="bg-dark text-light d-flex flex-column min-vh-100 background-wallpaper">
-
 <nav th:replace="~{fragments/navbar.html :: navbar}"></nav>
-
 <div class="container my-5">
     <h2 class="mb-4 text-light">Discover Communities</h2>
-
-    <!-- Search Section -->
     <div class="mb-5 p-4 bg-secondary-subtle rounded shadow-sm">
         <h5 class="text-dark">Find a Community</h5>
         <form th:action="@{/chatrooms/search-community}" method="get" class="mt-3">
@@ -24,8 +20,6 @@
             </div>
         </form>
     </div>
-
-    <!-- Search Results Table -->
     <div th:if="${!#lists.isEmpty(foundCommunities)}" class="mb-5">
         <h5 class="mb-3">Found Communities:</h5>
         <div class="table-responsive bg-light rounded shadow-sm">
@@ -52,12 +46,10 @@
         </div>
     </div>
 
-    <!-- No Communities Found -->
     <div th:if="${#lists.isEmpty(communities)}" class="text-muted">
         <p>No public communities available.</p>
     </div>
 
-    <!-- Suggested Communities List -->
     <div th:if="${!#lists.isEmpty(communities)}" class="mt-5">
         <h5 class="mb-3">Communities that Might Interest You</h5>
         <div class="list-group">

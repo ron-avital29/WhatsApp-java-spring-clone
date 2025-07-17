@@ -6,21 +6,16 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="/css/style.css" />
 </head>
-
 <body class="bg-dark text-light d-flex flex-column min-vh-100 background-wallpaper">
-
 <div th:replace="fragments/navbar :: navbar"></div>
-
 <div class="container mt-5">
     <h2 class="report-message-heading">Report Message</h2>
-
     <div class="card report-card mb-4">
         <div class="card-body report-card-body">
             <strong>Message:</strong>
             <p th:text="${message.content}">Message content here</p>
         </div>
     </div>
-
     <form th:action="@{'/reports/message/' + ${message.id}}" method="post">
         <div class="mb-3">
             <label for="reason" class="form-label report-form-label">Reason for reporting</label>
@@ -30,8 +25,6 @@
         <a th:href="@{'/chatrooms/' + ${message.chatroom.id} + '/view-chatroom'}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
-
 <div th:replace="fragments/footer :: footer"></div>
-
 </body>
 </html>

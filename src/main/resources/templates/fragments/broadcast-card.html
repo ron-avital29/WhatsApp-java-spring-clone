@@ -4,11 +4,9 @@
      data-broadcast-card>
     <div class="card-body overflow-auto">
         <h4 class="card-title mb-4">Broadcast Messages</h4>
-
         <div th:if="${#lists.isEmpty(broadcasts)}" class="text-muted">
             No active broadcasts at the moment.
         </div>
-
         <div class="list-group" th:unless="${#lists.isEmpty(broadcasts)}">
             <div th:each="msg : ${broadcasts}"
                  class="list-group-item d-flex flex-column border-bottom bg-light-subtle text-dark mb-2">
