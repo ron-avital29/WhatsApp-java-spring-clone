@@ -8,6 +8,22 @@ Watch the full demo on [YouTube](https://www.youtube.com/watch?v=PLACEHOLDER)
 
 ---
 
+## Table of Contents
+
+- [Screenshots](#screenshots)
+- [How to Run the Project](#how-to-run-the-project)
+  - [1. MySQL DB Setup with XAMPP (for Windows)](#1-mysql-db-setup-with-xampp-for-windows)
+  - [2. Increase SQL Packet Size Limit](#2-increase-sql-packet-size-limit)
+  - [3. Initialize the SQL Database](#3-initialize-the-sql-database)
+- [Admin Accounts](#admin-accounts)
+- [Feature Overview](#feature-overview)
+  - [General Features (All Users)](#general-features-all-users)
+  - [Admin-only Features](#admin-only-features)
+- [Database Tables Diagram](#database-tables-diagram)
+- [Technical Highlights](#technical-highlights)
+
+---
+
 ## Screenshots
 
 | Login Page        | Home Page             | Messaging Interface     |
@@ -41,9 +57,15 @@ Watch the full demo on [YouTube](https://www.youtube.com/watch?v=PLACEHOLDER)
 
 The MySQL database server will now be accessible on `localhost:3306`.
 
-### 2. Running the SQL Initialization File
+### 2. Increase SQL Packet Size Limit
 
-- In the same directory as this README, there is a file named `ex4_init.sql`
+- Open [phpMyAdmin](http://localhost/phpmyadmin)
+- Go to `SQL` tab
+- run this: `SET GLOBAL max_allowed_packet=67108864;`
+
+### 3. Initialize the SQL Database
+
+- In the same directory as this README, there is a file named `ex4.sql`
 - Open [phpMyAdmin](http://localhost/phpmyadmin)
 - Create a new database named `ex4`
 - Import the SQL file using the **Import** tab in phpMyAdmin
@@ -52,26 +74,14 @@ The MySQL database server will now be accessible on `localhost:3306`.
 
 ## Admin Accounts
 
-Two admin users are included in the database via the `ex4_init.sql`. Initially, they are regular users.
-
-**To promote them to admins:**
-
-1. Run the application
-2. Log in with each user once to ensure they exist in the database
-3. Open phpMyAdmin → Database `ex4` → Table `users`
-4. Manually change the value in the `role` column to `ADMIN` for the relevant users
+Two admin users are included in the database via the `ex4.sql`. Initially, they are `Admin` users already.
 
 **Admin usernames:**
 
-- `admin1@example.com`
-- `admin2@example.com`
+- `webmasterone2025@gmail.com`
+- `webmasterthree2025@gmail.com`
 
-### Screenshots (optional placeholders):
-
-- [ ] phpMyAdmin showing the users table
-- [ ] Role update from USER → ADMIN
-
----
+**Password** `Web2025$`
 
 ## Feature Overview
 
