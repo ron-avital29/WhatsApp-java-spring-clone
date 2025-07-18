@@ -70,9 +70,17 @@ The MySQL database server will now be accessible on `localhost:3306`.
 
 ### 3. Initialize the SQL Database
 
-- Open [phpMyAdmin](http://localhost/phpmyadmin)
-- Create a new database named `ex4`
-- (OPTIONAL: If you already have a ready database): Import your SQL file using the **Import** tab in phpMyAdmin
+To set up the MySQL database for the application:
+
+1. Open [phpMyAdmin](http://localhost/phpmyadmin)
+2. Create a new database named `ex4`
+3. run this: `SET GLOBAL max_allowed_packet=67108864;`
+4. (Optional) Import the provided database snapshot:
+  - Go to the **Import** tab in phpMyAdmin
+  - Upload the SQL file located at:  
+    `src/main/resources/static/sql-database-snapshot/ex4.zip`  
+    *(Unzip it first)*
+  - Once imported, your database will include all required tables and sample data.
 
 ---
 
