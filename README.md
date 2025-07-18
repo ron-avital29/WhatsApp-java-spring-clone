@@ -31,15 +31,15 @@ Watch the full demo on [YouTube](https://youtu.be/3yQcJbPibIs)
 
 ## Screenshots
 
-| Login Page        | Home Page             | Messaging Interface     |
-| ----------------- | --------------------- | ----------------------- |
-| ![](src/main/resources/static/screenshots/login.png) | ![](src/main/resources/static/screenshots/home.png) | ![](src/main/resources/static/screenshots/myChats.png) |
-| Community Browser | Chatroom Management   | Message Report Page     |
-| ![](src/main/resources/static/screenshots/discover.png) | ![](src/main/resources/static/screenshots/manage.png) | ![](src/main/resources/static/screenshots/report.png) |
-| File Upload Flow  | Admin Report Panel    | Broadcast Creation Page |
-| ![](src/main/resources/static/screenshots/file.png) | ![](src/main/resources/static/screenshots/adminPanel.png) | ![](src/main/resources/static/screenshots/broadcast.png) |
-| Banned Page       |                       |                         |
-| ![](src/main/resources/static/screenshots/banned.png) |                         |                         |
+| Login Page                                              | Home Page                                                 | Messaging Interface                                      |
+| ------------------------------------------------------- | --------------------------------------------------------- | -------------------------------------------------------- |
+| ![](src/main/resources/static/screenshots/login.png)    | ![](src/main/resources/static/screenshots/home.png)       | ![](src/main/resources/static/screenshots/myChats.png)   |
+| Community Browser                                       | Chatroom Management                                       | Message Report Page                                      |
+| ![](src/main/resources/static/screenshots/discover.png) | ![](src/main/resources/static/screenshots/manage.png)     | ![](src/main/resources/static/screenshots/report.png)    |
+| File Upload Flow                                        | Admin Report Panel                                        | Broadcast Creation Page                                  |
+| ![](src/main/resources/static/screenshots/file.png)     | ![](src/main/resources/static/screenshots/adminPanel.png) | ![](src/main/resources/static/screenshots/broadcast.png) |
+| Banned Page                                             |                                                           |                                                          |
+| ![](src/main/resources/static/screenshots/banned.png)   |                                                           |                                                          |
 
 ---
 
@@ -72,13 +72,13 @@ The MySQL database server will now be accessible on `localhost:3306`.
 
 - Open [phpMyAdmin](http://localhost/phpmyadmin)
 - Create a new database named `ex4`
-- If you already have a ready database: name it ex4.sql and Import the SQL file using the **Import** tab in phpMyAdmin
+- (OPTIONAL: If you already have a ready database): Import your SQL file using the **Import** tab in phpMyAdmin
 
 ---
 
 ## Admin Accounts
 
-Two admin users are included in the database via the `ex4.sql`. Initially, they are `Admin` users already.
+Two admin users are included in the database via the `ex4.sql`. Initially, they are `Admin` users already (if imported our given file).
 
 **Admin usernames:**
 
@@ -86,6 +86,8 @@ Two admin users are included in the database via the `ex4.sql`. Initially, they 
 - `webmasterthree2025@gmail.com`
 
 **Password** `Web2025$`
+
+`NOTE`: If starting from scratch: start the program -> Login with the user you want to make an admin -> go to [phpMyAdmin](http://localhost/phpmyadmin) and go to `user` table -> manually change `Role` cloumn from `USER` to `ADMIN` -> re-run the program -> Your user is now an admin!
 
 ## Feature Overview
 
