@@ -1,5 +1,10 @@
 # WhatsApp Social Network – Spring MVC Project
 
+## Students
+
+- Ron Avital - ronav@edu.jmc.ac.il
+- David Weschler - davidwes@edu.jmc.ac.il
+
 ## Overview
 
 This project implements a full-stack **WhatsApp-like social network** using **Spring Boot MVC**, **JPA (MySQL)**, **Spring Security**, and **Thymeleaf**. It allows users to chat via private, group, or community chatrooms, send messages and files, report inappropriate content, and for administrators to moderate users and broadcast announcements.
